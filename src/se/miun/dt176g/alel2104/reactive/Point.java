@@ -1,7 +1,5 @@
 package se.miun.dt176g.alel2104.reactive;
 
-
-
 /**
  * <h1>Point</h1> 
  *
@@ -19,26 +17,26 @@ public class Point {
 		this.y = y;
 	}
 
-	public int x() {
+	public int getX() {
 		return x;
 	}
 
-	public int y() {
+	public int getY() {
 		return y;
 	}
 
-	public void x(int x) {
+	public void setX(int x) {
 		this.x = x;
 	}
 
-	public void y(int y) {
+	public void setY(int y) {
 		this.y = y;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		Point p = (Point) o;
-		return (x == p.x() && y == p.y());
+		return (x == p.getX() && y == p.getY());
 	}
 	
 	@Override

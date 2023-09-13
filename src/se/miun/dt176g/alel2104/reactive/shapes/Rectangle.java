@@ -1,4 +1,6 @@
-package se.miun.dt176g.alel2104.reactive;
+package se.miun.dt176g.alel2104.reactive.shapes;
+
+import se.miun.dt176g.alel2104.reactive.Shape;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,9 +21,9 @@ public class Rectangle extends Shape {
 	@Override
 	public void draw(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g; // Type-cast the parameter to Graphics2D.
-		   
 		// Draw using g2.
-		// eg g2.fillOval(int x, int y, int width, int height)
+		g2.drawRect(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
+		System.out.println(getCoordinates().getX() + " " + getCoordinates().getY());
 	}
 
 }
