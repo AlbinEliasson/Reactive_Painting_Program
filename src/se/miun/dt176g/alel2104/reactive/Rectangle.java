@@ -14,7 +14,7 @@ import java.awt.Graphics2D;
  * @since 	2022-09-08
  */
 
-public class ConcreteShape extends Shape {
+public class Rectangle extends Shape {
 
 	@Override
 	public void draw(Graphics g) {

@@ -25,6 +25,9 @@ public class MainFrame extends JFrame {
 		// application closes when the "x" in the upper-right corner is clicked.
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		// Makes sure the window starts at the center of the screen
+		this.setLocationRelativeTo(null);
+
 		this.header = "Reactive Paint";
 		this.setTitle(header);
 
