@@ -2,6 +2,8 @@ package se.miun.dt176g.alel2104.reactive;
 
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
+import se.miun.dt176g.alel2104.reactive.shapes.Line;
+import se.miun.dt176g.alel2104.reactive.shapes.Oval;
 import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
 
 import java.awt.*;
@@ -21,18 +23,43 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class DrawingPanel extends JPanel {
 	private Drawing drawing;
-	private Point firstPoint;
+	private Observable<MouseEvent> mouseReleasedEvent;
+	private Observable<MouseEvent> mousePressedEvent;
+	private Point initialPoint;
+	private Shape currentShape;
 
 	public DrawingPanel() {
 		drawing = new Drawing();
 
-		getFirstPoint().subscribe(point -> getSecondPoint().subscribe(point1 -> {
-			Rectangle rectangle = new Rectangle();
-			rectangle.setCoordinates(getInitialPoint(point, point1));
-			rectangle.setSize(getShapeSize(point, point1));
-			getDrawing().addShape(rectangle);
-			redraw();
-		}));
+		setMouseEventsObservable();
+	}
+
+	private void InitializeShape(Point shapeSize) {
+		if (currentShape != null) {
+			if (currentShape.getClass().equals(Rectangle.class)) {
+				Rectangle rectangle = new Rectangle();
+				rectangle.setCoordinates(initialPoint);
+				rectangle.setSize(shapeSize);
+				getDrawing().addShape(rectangle);
+				redraw();
+			} else if (currentShape.getClass().equals(Oval.class)) {
+				Oval oval = new Oval();
+				oval.setCoordinates(initialPoint);
+				oval.setSize(shapeSize);
+				getDrawing().addShape(oval);
+				redraw();
+			} else if (currentShape.getClass().equals(Line.class)) {
+				Line line = new Line();
+				line.setCoordinates(initialPoint);
+				line.setSize(shapeSize);
+				getDrawing().addShape(line);
+				redraw();
+			}
+		}
+	}
+
+	private void setInitialPoint(int firstPointX, int firstPointY, int secondPointX, int secondPointY) {
+		this.initialPoint = new Point(Math.min(firstPointX, secondPointX), Math.min(firstPointY, secondPointY));
 	}
 	
 	public void redraw() {
@@ -48,38 +75,37 @@ public class DrawingPanel extends JPanel {
 		return drawing;
 	}
 
-	private Point getInitialPoint(Point firstPoint, Point secondPoint) {
-		return new Point(Math.min(firstPoint.getX(), secondPoint.getX()), Math.min(firstPoint.getY(), secondPoint.getY()));
+	public void setCurrentShape(Shape shape) {
+		this.currentShape = shape;
 	}
 
 	private Point getShapeSize(Point firstPoint, Point secondPoint) {
 		return new Point(Math.abs(secondPoint.getX() - firstPoint.getX()), Math.abs(secondPoint.getY() - firstPoint.getY()));
 	}
 
-	public @NonNull Observable<Point> getFirstPoint() {
-		return Observable.create(emitter -> {
-			this.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mousePressed(MouseEvent e) {
-					emitter.onNext(new Point(e.getX(), e.getY()));
-					//emitter.onComplete();
-					super.mousePressed(e);
-				}
-			});
-		});
-	}
+	private void setMouseEventsObservable() {
+		mousePressedEvent = Observable.create(emitter -> this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				emitter.onNext(e);
+				super.mousePressed(e);
+			}
+		}));
 
-	public @NonNull Observable<Point> getSecondPoint() {
-		return Observable.create(emitter -> {
-			this.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseReleased(MouseEvent e) {
-					emitter.onNext(new Point(e.getX(), e.getY()));
-					//emitter.onComplete();
-					super.mouseReleased(e);
-				}
-			});
-		});
+		mouseReleasedEvent = Observable.create(emitter -> this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				emitter.onNext(e);
+				super.mouseReleased(e);
+			}
+		}));
+
+		Observable.zip(mousePressedEvent, mouseReleasedEvent, (p, r) -> {
+			setInitialPoint(p.getX(), p.getY(), r.getX(), r.getY());
+			return getShapeSize(new Point(p.getX(), p.getY()), new Point(r.getX(), r.getY()));
+		}).subscribe(this::InitializeShape);
+
+		// Make 2 zip and merge them later maby?
 	}
 
 	@Override
@@ -88,27 +114,4 @@ public class DrawingPanel extends JPanel {
 		super.paintComponent(g);
 		drawing.draw(g);
 	}
-
-//	private @NonNull Observable<Object> mouseListenerObservable() {
-//		return Observable.create(emitter -> {
-//			this.addMouseListener(new MouseAdapter() {
-//				@Override
-//				public void mousePressed(MouseEvent e) {
-//					emitter.onNext(e.getX());
-//					emitter.onNext(e.getY());
-//					super.mousePressed(e);
-//				}
-//
-//				@Override
-//				public void mouseDragged(MouseEvent e) {
-//					super.mouseDragged(e);
-//				}
-//
-//				@Override
-//				public void mouseMoved(MouseEvent e) {
-//					super.mouseMoved(e);
-//				}
-//			});
-//		});
-//	}
 }

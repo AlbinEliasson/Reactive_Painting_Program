@@ -42,4 +42,8 @@ public class MainFrame extends JFrame {
 		this.setJMenuBar(new Menu(this));
 
 	}
+
+	public DrawingPanel getDrawingPanel() {
+		return drawingPanel;
+	}
 }

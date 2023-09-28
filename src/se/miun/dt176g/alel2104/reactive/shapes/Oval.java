@@ -8,5 +8,8 @@ public class Oval extends Shape {
     @Override
     public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D) g; // Type-cast the parameter to Graphics2D.
+
+        g2.drawOval(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
+        System.out.println(getCoordinates().getX() + " " + getCoordinates().getY());
     }
 }
