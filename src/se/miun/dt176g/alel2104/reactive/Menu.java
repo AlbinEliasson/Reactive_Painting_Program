@@ -97,5 +97,6 @@ public class Menu extends JMenuBar {
 		drawLine.setEnabled(false);
 		drawRectangle.setEnabled(true);
 		drawOval.setEnabled(true);
+		currentShape.setText("Drawing: Line");
 	}
 }
