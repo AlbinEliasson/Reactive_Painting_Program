@@ -1,9 +1,6 @@
 package se.miun.dt176g.alel2104.reactive;
 
-import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import se.miun.dt176g.alel2104.reactive.shapes.Line;
 import se.miun.dt176g.alel2104.reactive.shapes.Oval;
 import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
@@ -25,71 +22,13 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class DrawingPanel extends JPanel {
 	private Drawing drawing;
-	private Observable<MouseEvent> mouseReleasedEvent;
-	private Observable<MouseEvent> mousePressedEvent;
 	private Observable<MouseEvent> mouseEventObservable;
-	private Point initialPoint;
-	private Point initialPoint2;
 	private Shape currentShape;
 
 	public DrawingPanel() {
 		drawing = new Drawing();
 
 		setMouseEventsObservable();
-	}
-
-	private void InitializeShape(Point shapeSize, MouseEvent mouseEvent) {
-
-		if (currentShape != null) {
-			if (currentShape.getClass().equals(Rectangle.class)) {
-				Rectangle rectangle = new Rectangle();
-				rectangle.setCoordinates(initialPoint);
-				rectangle.setSize(shapeSize);
-				getDrawing().addShape(rectangle);
-				redraw();
-			} else if (currentShape.getClass().equals(Oval.class)) {
-				Oval oval = new Oval();
-				oval.setCoordinates(initialPoint);
-				oval.setSize(shapeSize);
-				getDrawing().addShape(oval);
-				redraw();
-			} else if (currentShape.getClass().equals(Line.class)) {
-				Line line = new Line();
-				line.setCoordinates(initialPoint);
-				line.setSize(shapeSize);
-				getDrawing().addShape(line);
-				redraw();
-			}
-		}
-	}
-
-	private void setInitialPoint(int firstPointX, int firstPointY, int secondPointX, int secondPointY) {
-		this.initialPoint = new Point(Math.min(firstPointX, secondPointX), Math.min(firstPointY, secondPointY));
-	}
-
-	private Point getInitialPoint(int firstPointX, int firstPointY, int secondPointX, int secondPointY) {
-		return new Point(Math.min(firstPointX, secondPointX), Math.min(firstPointY, secondPointY));
-	}
-	
-	public void redraw() {
-		repaint();
-	}
-
-	public void setDrawing(Drawing d) {
-		drawing = d;
-		repaint();
-	}
-
-	public Drawing getDrawing() {
-		return drawing;
-	}
-
-	public void setCurrentShape(Shape shape) {
-		this.currentShape = shape;
-	}
-
-	private Point getShapeSize(Point firstPoint, Point secondPoint) {
-		return new Point(Math.abs(secondPoint.getX() - firstPoint.getX()), Math.abs(secondPoint.getY() - firstPoint.getY()));
 	}
 
 	private void setMouseEventsObservable() {
@@ -107,11 +46,11 @@ public class DrawingPanel extends JPanel {
 					super.mouseReleased(e);
 				}
 
-//				@Override
-//				public void mouseDragged(MouseEvent e) {
-//					emitter.onNext(e);
-//					super.mouseDragged(e);
-//				}
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					emitter.onNext(e);
+					super.mouseDragged(e);
+				}
 			};
 			this.addMouseListener(mouseAdapter);
 			this.addMouseMotionListener(mouseAdapter);
@@ -122,40 +61,80 @@ public class DrawingPanel extends JPanel {
 			});
 		});
 
-		mouseEventObservable.filter(e -> e.getID() == MouseEvent.MOUSE_PRESSED)
-				.map(mouseEvent -> new Point(mouseEvent.getX(), mouseEvent.getY()))
-				.flatMap(this::createShape)
-				.doOnNext(shape -> {
-					getDrawing().addShape(shape);
-					redraw();
-				})
-				.subscribe();
+		mouseEventObservable
+				.doOnNext(mouseEvent -> {
+					if (mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
+						getDrawing().addShape(currentShape);
 
+					} else if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED) {
+						currentShape = resetShape(currentShape);
+					}
+				})
+				.filter(mouseEvent -> mouseEvent.getID() == MouseEvent.MOUSE_PRESSED)
+				.map(mouseEvent -> new Point(mouseEvent.getX(), mouseEvent.getY()))
+				.switchMap(this::updateShape)
+				.subscribe();
 	}
 
-	private Observable<Shape> createShape(Point startPoint) {
+	private Observable<Shape> updateShape(Point startPoint) {
 		return mouseEventObservable
 				.takeUntil(mouseEvent -> mouseEvent.getID() == MouseEvent.MOUSE_RELEASED)
 				.map(mouseEvent -> new Point(mouseEvent.getX(), mouseEvent.getY()))
-				.map(endPoint -> {
-					Point initialPoint = getInitialPoint(startPoint.getX(), startPoint.getY(), endPoint.getX(), endPoint.getY());
-					Point pointSize = getShapeSize(startPoint, new Point(endPoint.getX(), endPoint.getY()));
+				.map(currentPoint -> updateCurrentShape(startPoint, currentPoint));
+	}
 
-					if (currentShape instanceof Rectangle) {
-						currentShape = new Rectangle();
-						currentShape.setCoordinates(initialPoint);
-						currentShape.setSize(pointSize);
-					} else if (currentShape instanceof Oval) {
-						currentShape = new Oval();
-						currentShape.setCoordinates(initialPoint);
-						currentShape.setSize(pointSize);
-					} else if (currentShape instanceof Line) {
-						currentShape = new Line();
-						currentShape.setCoordinates(new Point(startPoint.getX(), startPoint.getY()));
-						currentShape.setSize(new Point(endPoint.getX(), endPoint.getY()));
-					}
-					return currentShape;
-				});
+	private Shape updateCurrentShape(Point startPoint, Point currentPoint) {
+		Point initialPoint = getInitialPoint(startPoint.getX(), startPoint.getY(), currentPoint.getX(), currentPoint.getY());
+		Point pointSize = getShapeSize(startPoint, new Point(currentPoint.getX(), currentPoint.getY()));
+
+		if (currentShape instanceof Line) {
+			currentShape.setCoordinates(new Point(startPoint.getX(), startPoint.getY()));
+			currentShape.setSize(new Point(currentPoint.getX(), currentPoint.getY()));
+		} else {
+			currentShape.setCoordinates(initialPoint);
+			currentShape.setSize(pointSize);
+		}
+		redraw();
+		return currentShape;
+	}
+
+	private Shape resetShape(Shape currentShape) {
+
+		if (currentShape instanceof Rectangle) {
+			currentShape = new Rectangle();
+
+		} else if (currentShape instanceof Oval) {
+			currentShape = new Oval();
+
+		} else if (currentShape instanceof Line) {
+			currentShape = new Line();
+		}
+		return currentShape;
+	}
+
+	private Point getInitialPoint(int firstPointX, int firstPointY, int secondPointX, int secondPointY) {
+		return new Point(Math.min(firstPointX, secondPointX), Math.min(firstPointY, secondPointY));
+	}
+
+	private Point getShapeSize(Point firstPoint, Point secondPoint) {
+		return new Point(Math.abs(secondPoint.getX() - firstPoint.getX()), Math.abs(secondPoint.getY() - firstPoint.getY()));
+	}
+
+	public void setDrawing(Drawing d) {
+		drawing = d;
+		repaint();
+	}
+
+	public Drawing getDrawing() {
+		return drawing;
+	}
+
+	public void setCurrentShape(Shape shape) {
+		this.currentShape = shape;
+	}
+
+	public void redraw() {
+		repaint();
 	}
 
 	@Override
