@@ -15,6 +15,7 @@ public abstract class Shape implements Drawable {
     // private member : some container storing coordinates
     private Point coordinates;
     private Point size;
+    private float thickness;
 
     public Point getCoordinates() {
         return coordinates;
@@ -34,5 +35,13 @@ public abstract class Shape implements Drawable {
 
     public void setSize(Point size) {
         this.size = size;
+    }
+
+    public void setThickness(float thickness) {
+        this.thickness = thickness;
+    }
+
+    public float getThickness() {
+        return thickness;
     }
 }

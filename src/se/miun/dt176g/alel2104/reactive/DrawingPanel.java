@@ -24,6 +24,7 @@ public class DrawingPanel extends JPanel {
 	private Drawing drawing;
 	private Observable<MouseEvent> mouseEventObservable;
 	private Shape currentShape;
+	private float currentThickness;
 
 	public DrawingPanel() {
 		drawing = new Drawing();
@@ -90,9 +91,11 @@ public class DrawingPanel extends JPanel {
 		if (currentShape instanceof Line) {
 			currentShape.setCoordinates(new Point(startPoint.getX(), startPoint.getY()));
 			currentShape.setSize(new Point(currentPoint.getX(), currentPoint.getY()));
+			currentShape.setThickness(currentThickness);
 		} else {
 			currentShape.setCoordinates(initialPoint);
 			currentShape.setSize(pointSize);
+			currentShape.setThickness(currentThickness);
 		}
 		redraw();
 		return currentShape;
@@ -131,6 +134,10 @@ public class DrawingPanel extends JPanel {
 
 	public void setCurrentShape(Shape shape) {
 		this.currentShape = shape;
+	}
+
+	public void setCurrentThickness(float thickness) {
+		this.currentThickness = thickness;
 	}
 
 	public void redraw() {

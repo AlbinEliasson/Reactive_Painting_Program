@@ -5,14 +5,17 @@ import se.miun.dt176g.alel2104.reactive.shapes.Oval;
 import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
 
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
+import java.awt.event.ItemEvent;
 
 
 /**
@@ -23,80 +26,105 @@ import java.awt.ComponentOrientation;
  * @since 	2022-09-08
  */
 public class Menu extends JMenuBar {
-
 	private static final long serialVersionUID = 1L;
-	private JMenuItem drawRectangle;
-	private JMenuItem drawOval;
-	private JMenuItem drawLine;
 	private JLabel currentShape;
+	private final long thinLine = 1;
+	private final long mediumLine = 4;
+	private final long thickLine = 8;
 
-	
 	public Menu(MainFrame frame) {
 		init(frame);
 	}
 	
 	private void init(MainFrame frame) {
-		
-		JMenu menu;
-		JMenuItem menuItem;
+		JMenu drawMenu = new JMenu("Choose painting option");
+		this.add(drawMenu);
 
-		menu = new JMenu("Some Menu category");
-		this.add(menu);
-
-
-		menuItem = new JMenuItem("Some menu item 1");
-		menuItem.addActionListener(e -> anEvent(frame));
-		menu.add(menuItem);
-
-		drawRectangle = new JMenuItem("Draw rectangle");
-		drawRectangle.addActionListener(e ->  RectangleEvent(frame));
-		menu.add(drawRectangle);
-
-		drawOval = new JMenuItem("Draw Oval");
-		drawOval.addActionListener(e ->  OvalEvent(frame));
-		menu.add(drawOval);
-
-		drawLine = new JMenuItem("Draw Line");
-		drawLine.addActionListener(e -> LineEvent(frame));
-		menu.add(drawLine);
+		JMenu thicknessMenu = new JMenu("Choose thickness");
+		this.add(thicknessMenu);
 
 		currentShape = new JLabel();
 		currentShape.setForeground(Color.DARK_GRAY);
+
+		ButtonGroup thicknessButtonGroup = new ButtonGroup();
+		JRadioButtonMenuItem thin = new JRadioButtonMenuItem("Thin");
+		thin.setSelected(true);
+		thin.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				frame.getDrawingPanel().setCurrentThickness(thinLine);
+			}
+		});
+
+		JRadioButtonMenuItem medium = new JRadioButtonMenuItem("Medium");
+		medium.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				frame.getDrawingPanel().setCurrentThickness(mediumLine);
+			}
+		});
+
+		JRadioButtonMenuItem thick = new JRadioButtonMenuItem("Thick");
+		thick.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				frame.getDrawingPanel().setCurrentThickness(thickLine);
+			}
+		});
+
+		thicknessMenu.add(thin);
+		thicknessMenu.add(medium);
+		thicknessMenu.add(thick);
+
+		thicknessButtonGroup.add(thin);
+		thicknessButtonGroup.add(medium);
+		thicknessButtonGroup.add(thick);
+
+		ButtonGroup drawButtonGroup = new ButtonGroup();
+		JRadioButtonMenuItem drawRectangle = new JRadioButtonMenuItem("Rectangle");
+		drawRectangle.setSelected(true);
+
+		drawRectangle.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				rectangleEvent(frame);
+			}
+		});
+		rectangleEvent(frame);
+
+		JRadioButtonMenuItem drawOval = new JRadioButtonMenuItem("Oval");
+		drawOval.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				ovalEvent(frame);
+			}
+		});
+
+		JRadioButtonMenuItem drawLine = new JRadioButtonMenuItem("Line");
+		drawLine.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				lineEvent(frame);
+			}
+		});
+
+		drawMenu.add(drawRectangle);
+		drawMenu.add(drawOval);
+		drawMenu.add(drawLine);
+		drawButtonGroup.add(drawRectangle);
+		drawButtonGroup.add(drawOval);
+		drawButtonGroup.add(drawLine);
+
 		this.add(Box.createHorizontalGlue());
 		this.add(currentShape);
 	}
-
-	private void anEvent(MainFrame frame) {
 	
-		String message = (String) JOptionPane.showInputDialog(frame,
-				"Send message to everyone:");
-		
-		if(message != null && !message.isEmpty()) {
-			JOptionPane.showMessageDialog(frame, message);
-		}
-	}
-	
-	private void RectangleEvent(MainFrame frame) {
+	private void rectangleEvent(MainFrame frame) {
 		frame.getDrawingPanel().setCurrentShape(new Rectangle());
-		drawRectangle.setEnabled(false);
-		drawOval.setEnabled(true);
-		drawLine.setEnabled(true);
 		currentShape.setText("Drawing: Rectangle");
 	}
 
-	private void OvalEvent(MainFrame frame) {
+	private void ovalEvent(MainFrame frame) {
 		frame.getDrawingPanel().setCurrentShape(new Oval());
-		drawOval.setEnabled(false);
-		drawRectangle.setEnabled(true);
-		drawLine.setEnabled(true);
 		currentShape.setText("Drawing: Oval");
 	}
 
-	private void LineEvent(MainFrame frame) {
+	private void lineEvent(MainFrame frame) {
 		frame.getDrawingPanel().setCurrentShape(new Line());
-		drawLine.setEnabled(false);
-		drawRectangle.setEnabled(true);
-		drawOval.setEnabled(true);
 		currentShape.setText("Drawing: Line");
 	}
 }
