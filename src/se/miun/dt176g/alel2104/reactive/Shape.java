@@ -18,8 +18,7 @@ public abstract class Shape implements Drawable {
     // private member : some container storing coordinates
     private Point coordinates;
     private Point size;
-    private ArrayList<Point> freehandCoordinates = new ArrayList<>();
-    private Point freehandSize;
+    private final ArrayList<Point> freehandCoordinates = new ArrayList<>();
     private float thickness;
     private Color color;
 
@@ -37,18 +36,6 @@ public abstract class Shape implements Drawable {
 
     public ArrayList<Point> getFreehandCoordinates() {
         return this.freehandCoordinates;
-    }
-
-    public void resetFreehandCoordinates() {
-        this.freehandCoordinates.clear();
-    }
-
-    public void setFreehandSize(Point freehandSize) {
-        this.freehandSize = freehandSize;
-    }
-
-    public Point getFreehandSize() {
-        return freehandSize;
     }
 
     public int getWidth() {

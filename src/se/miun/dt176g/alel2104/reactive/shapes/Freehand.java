@@ -15,8 +15,6 @@ public class Freehand extends Shape {
         g2.setStroke(new BasicStroke(getThickness()));
         g2.setColor(getColor());
 
-        getFreehandCoordinates().forEach(point -> {
-            g2.drawLine(point.getX(), point.getY(), point.getX(), point.getY());
-        });
+        getFreehandCoordinates().forEach(point -> g2.drawLine(point.getX(), point.getY(), point.getX(), point.getY()));
     }
 }

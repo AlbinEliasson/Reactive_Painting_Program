@@ -67,51 +67,44 @@ public class DrawingPanel extends JPanel {
 		mouseEventObservable
 				.doOnNext(mouseEvent -> {
 					if (mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
-						getDrawing().addShape(currentShape);
-						System.out.println("MOUSE PRESSED!");
-					} else if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED) {
 						currentShape = resetShape(currentShape);
-						currentShape.resetFreehandCoordinates();
-						currentShape.setCoordinates(null);
-						System.out.println("MOUSE RELEASED!");
+						getDrawing().addShape(currentShape);
 					}
 				})
 				.filter(mouseEvent -> mouseEvent.getID() == MouseEvent.MOUSE_PRESSED)
 				.map(mouseEvent -> new Point(mouseEvent.getX(), mouseEvent.getY()))
-				.switchMap(this::updateShape)
+				.switchMap(this::getShape)
 				.subscribe();
 	}
 
-	private Observable<Shape> updateShape(Point startPoint) {
+	private Observable<Shape> getShape(Point startPoint) {
 		return mouseEventObservable
 				.takeUntil(mouseEvent -> mouseEvent.getID() == MouseEvent.MOUSE_RELEASED)
 				.map(mouseEvent -> new Point(mouseEvent.getX(), mouseEvent.getY()))
-				.map(currentPoint -> updateCurrentShape(startPoint, currentPoint));
+				.map(currentPoint -> getUpdatedShape(startPoint, currentPoint));
 	}
 
-	private Shape updateCurrentShape(Point startPoint, Point currentPoint) {
+	private Shape getUpdatedShape(Point startPoint, Point currentPoint) {
 		if (currentShape instanceof Line) {
 			currentShape.setCoordinates(startPoint);
 			currentShape.setSize(currentPoint);
-			currentShape.setThickness(currentThickness);
-			currentShape.setColor(currentColor);
+
 		} else if (currentShape instanceof Freehand) {
 			if (currentShape.getFreehandCoordinates().isEmpty()) {
+				System.out.println("EMPTY!");
 				currentShape.setFreehandCoordinates(startPoint);
 			} else {
 				currentShape.setFreehandCoordinates(currentPoint);
 			}
-			currentShape.setThickness(currentThickness);
-			currentShape.setColor(currentColor);
 
 		} else {
 			Point initialPoint = getInitialPoint(startPoint.getX(), startPoint.getY(), currentPoint.getX(), currentPoint.getY());
 			Point pointSize = getShapeSize(startPoint, new Point(currentPoint.getX(), currentPoint.getY()));
 			currentShape.setCoordinates(initialPoint);
 			currentShape.setSize(pointSize);
-			currentShape.setThickness(currentThickness);
-			currentShape.setColor(currentColor);
 		}
+		currentShape.setThickness(currentThickness);
+		currentShape.setColor(currentColor);
 		redraw();
 		return currentShape;
 	}
@@ -164,6 +157,11 @@ public class DrawingPanel extends JPanel {
 
 	public void redraw() {
 		repaint();
+	}
+
+	public void clearCanvas() {
+		getDrawing().clearShapes();
+		redraw();
 	}
 
 	@Override

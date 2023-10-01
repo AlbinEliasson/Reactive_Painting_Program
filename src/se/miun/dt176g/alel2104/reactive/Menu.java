@@ -12,10 +12,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
 import java.awt.event.ItemEvent;
 
 
@@ -41,6 +39,7 @@ public class Menu extends JMenuBar {
 		currentShape = new JLabel();
 		currentShape.setForeground(Color.DARK_GRAY);
 
+		initOptionMenu(frame);
 		initDrawMenu(frame);
 		initThicknessMenu(frame);
 		initColorMenu(frame);
@@ -49,8 +48,18 @@ public class Menu extends JMenuBar {
 		this.add(currentShape);
 	}
 
+	private void initOptionMenu(MainFrame frame) {
+		JMenu optionsMenu = new JMenu("General options");
+
+		JMenuItem clearCanvas = new JMenuItem("Clear canvas");
+		clearCanvas.addActionListener(e -> clearCanvasEvent(frame));
+
+		optionsMenu.add(clearCanvas);
+		this.add(optionsMenu);
+	}
+
 	private void initThicknessMenu(MainFrame frame) {
-		JMenu thicknessMenu = new JMenu("Choose thickness");
+		JMenu thicknessMenu = new JMenu("Thickness");
 		ButtonGroup thicknessButtonGroup = new ButtonGroup();
 
 		JRadioButtonMenuItem thin = new JRadioButtonMenuItem("Thin");
@@ -87,7 +96,7 @@ public class Menu extends JMenuBar {
 	}
 
 	private void initDrawMenu(MainFrame frame) {
-		JMenu drawMenu = new JMenu("Choose painting option");
+		JMenu drawMenu = new JMenu("Painting options");
 		ButtonGroup drawButtonGroup = new ButtonGroup();
 
 		JRadioButtonMenuItem drawRectangle = new JRadioButtonMenuItem("Rectangle");
@@ -134,7 +143,7 @@ public class Menu extends JMenuBar {
 	}
 
 	private void initColorMenu(MainFrame frame) {
-		JMenu colorMenu = new JMenu("Choose color");
+		JMenu colorMenu = new JMenu("Color");
 		ButtonGroup colorButtonGroup = new ButtonGroup();
 
 		JRadioButtonMenuItem colorBlack = new JRadioButtonMenuItem("Black");
@@ -196,6 +205,15 @@ public class Menu extends JMenuBar {
 			case "Black" -> frame.getDrawingPanel().setCurrentColor(Color.BLACK);
 			case "Red" -> frame.getDrawingPanel().setCurrentColor(Color.RED);
 			case "Blue" -> frame.getDrawingPanel().setCurrentColor(Color.BLUE);
+		}
+	}
+
+	private void clearCanvasEvent(MainFrame frame) {
+		int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to clear the canvas?",
+				"Reactive Paint" ,JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+		if (dialogResult == JOptionPane.YES_OPTION) {
+			frame.getDrawingPanel().clearCanvas();
 		}
 	}
 }
