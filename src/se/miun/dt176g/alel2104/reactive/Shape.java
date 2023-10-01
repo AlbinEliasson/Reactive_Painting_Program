@@ -1,5 +1,8 @@
 package se.miun.dt176g.alel2104.reactive;
 
+import java.awt.Color;
+import java.util.ArrayList;
+
 /**
  * <h1>Shape</h1> Abstract class which derived classes builds on.
  * <p>
@@ -15,7 +18,10 @@ public abstract class Shape implements Drawable {
     // private member : some container storing coordinates
     private Point coordinates;
     private Point size;
+    private ArrayList<Point> freehandCoordinates = new ArrayList<>();
+    private Point freehandSize;
     private float thickness;
+    private Color color;
 
     public Point getCoordinates() {
         return coordinates;
@@ -23,6 +29,26 @@ public abstract class Shape implements Drawable {
 
     public void setCoordinates(Point coordinates) {
         this.coordinates = coordinates;
+    }
+
+    public void setFreehandCoordinates(Point coordinates) {
+        this.freehandCoordinates.add(coordinates);
+    }
+
+    public ArrayList<Point> getFreehandCoordinates() {
+        return this.freehandCoordinates;
+    }
+
+    public void resetFreehandCoordinates() {
+        this.freehandCoordinates.clear();
+    }
+
+    public void setFreehandSize(Point freehandSize) {
+        this.freehandSize = freehandSize;
+    }
+
+    public Point getFreehandSize() {
+        return freehandSize;
     }
 
     public int getWidth() {
@@ -43,5 +69,13 @@ public abstract class Shape implements Drawable {
 
     public float getThickness() {
         return thickness;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }

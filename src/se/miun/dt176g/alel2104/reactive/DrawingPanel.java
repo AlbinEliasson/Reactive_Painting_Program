@@ -1,6 +1,7 @@
 package se.miun.dt176g.alel2104.reactive;
 
 import io.reactivex.rxjava3.core.Observable;
+import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
 import se.miun.dt176g.alel2104.reactive.shapes.Line;
 import se.miun.dt176g.alel2104.reactive.shapes.Oval;
 import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
@@ -25,6 +26,7 @@ public class DrawingPanel extends JPanel {
 	private Observable<MouseEvent> mouseEventObservable;
 	private Shape currentShape;
 	private float currentThickness;
+	private Color currentColor;
 
 	public DrawingPanel() {
 		drawing = new Drawing();
@@ -66,9 +68,12 @@ public class DrawingPanel extends JPanel {
 				.doOnNext(mouseEvent -> {
 					if (mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
 						getDrawing().addShape(currentShape);
-
+						System.out.println("MOUSE PRESSED!");
 					} else if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED) {
 						currentShape = resetShape(currentShape);
+						currentShape.resetFreehandCoordinates();
+						currentShape.setCoordinates(null);
+						System.out.println("MOUSE RELEASED!");
 					}
 				})
 				.filter(mouseEvent -> mouseEvent.getID() == MouseEvent.MOUSE_PRESSED)
@@ -85,17 +90,27 @@ public class DrawingPanel extends JPanel {
 	}
 
 	private Shape updateCurrentShape(Point startPoint, Point currentPoint) {
-		Point initialPoint = getInitialPoint(startPoint.getX(), startPoint.getY(), currentPoint.getX(), currentPoint.getY());
-		Point pointSize = getShapeSize(startPoint, new Point(currentPoint.getX(), currentPoint.getY()));
-
 		if (currentShape instanceof Line) {
-			currentShape.setCoordinates(new Point(startPoint.getX(), startPoint.getY()));
-			currentShape.setSize(new Point(currentPoint.getX(), currentPoint.getY()));
+			currentShape.setCoordinates(startPoint);
+			currentShape.setSize(currentPoint);
 			currentShape.setThickness(currentThickness);
+			currentShape.setColor(currentColor);
+		} else if (currentShape instanceof Freehand) {
+			if (currentShape.getFreehandCoordinates().isEmpty()) {
+				currentShape.setFreehandCoordinates(startPoint);
+			} else {
+				currentShape.setFreehandCoordinates(currentPoint);
+			}
+			currentShape.setThickness(currentThickness);
+			currentShape.setColor(currentColor);
+
 		} else {
+			Point initialPoint = getInitialPoint(startPoint.getX(), startPoint.getY(), currentPoint.getX(), currentPoint.getY());
+			Point pointSize = getShapeSize(startPoint, new Point(currentPoint.getX(), currentPoint.getY()));
 			currentShape.setCoordinates(initialPoint);
 			currentShape.setSize(pointSize);
 			currentShape.setThickness(currentThickness);
+			currentShape.setColor(currentColor);
 		}
 		redraw();
 		return currentShape;
@@ -111,6 +126,9 @@ public class DrawingPanel extends JPanel {
 
 		} else if (currentShape instanceof Line) {
 			currentShape = new Line();
+
+		} else if (currentShape instanceof Freehand) {
+			currentShape = new Freehand();
 		}
 		return currentShape;
 	}
@@ -138,6 +156,10 @@ public class DrawingPanel extends JPanel {
 
 	public void setCurrentThickness(float thickness) {
 		this.currentThickness = thickness;
+	}
+
+	public void setCurrentColor(Color currentColor) {
+		this.currentColor = currentColor;
 	}
 
 	public void redraw() {

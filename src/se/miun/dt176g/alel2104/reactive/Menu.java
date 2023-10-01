@@ -1,5 +1,6 @@
 package se.miun.dt176g.alel2104.reactive;
 
+import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
 import se.miun.dt176g.alel2104.reactive.shapes.Line;
 import se.miun.dt176g.alel2104.reactive.shapes.Oval;
 import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
@@ -37,16 +38,21 @@ public class Menu extends JMenuBar {
 	}
 	
 	private void init(MainFrame frame) {
-		JMenu drawMenu = new JMenu("Choose painting option");
-		this.add(drawMenu);
-
-		JMenu thicknessMenu = new JMenu("Choose thickness");
-		this.add(thicknessMenu);
-
 		currentShape = new JLabel();
 		currentShape.setForeground(Color.DARK_GRAY);
 
+		initDrawMenu(frame);
+		initThicknessMenu(frame);
+		initColorMenu(frame);
+
+		this.add(Box.createHorizontalGlue());
+		this.add(currentShape);
+	}
+
+	private void initThicknessMenu(MainFrame frame) {
+		JMenu thicknessMenu = new JMenu("Choose thickness");
 		ButtonGroup thicknessButtonGroup = new ButtonGroup();
+
 		JRadioButtonMenuItem thin = new JRadioButtonMenuItem("Thin");
 		thin.setSelected(true);
 		thin.addItemListener(e -> {
@@ -77,10 +83,15 @@ public class Menu extends JMenuBar {
 		thicknessButtonGroup.add(medium);
 		thicknessButtonGroup.add(thick);
 
+		this.add(thicknessMenu);
+	}
+
+	private void initDrawMenu(MainFrame frame) {
+		JMenu drawMenu = new JMenu("Choose painting option");
 		ButtonGroup drawButtonGroup = new ButtonGroup();
+
 		JRadioButtonMenuItem drawRectangle = new JRadioButtonMenuItem("Rectangle");
 		drawRectangle.setSelected(true);
-
 		drawRectangle.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
 				rectangleEvent(frame);
@@ -102,15 +113,62 @@ public class Menu extends JMenuBar {
 			}
 		});
 
+		JRadioButtonMenuItem drawFreehand = new JRadioButtonMenuItem("Freehand");
+		drawFreehand.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				freehandEvent(frame);
+			}
+		});
+
 		drawMenu.add(drawRectangle);
 		drawMenu.add(drawOval);
 		drawMenu.add(drawLine);
+		drawMenu.add(drawFreehand);
+
 		drawButtonGroup.add(drawRectangle);
 		drawButtonGroup.add(drawOval);
 		drawButtonGroup.add(drawLine);
+		drawButtonGroup.add(drawFreehand);
 
-		this.add(Box.createHorizontalGlue());
-		this.add(currentShape);
+		this.add(drawMenu);
+	}
+
+	private void initColorMenu(MainFrame frame) {
+		JMenu colorMenu = new JMenu("Choose color");
+		ButtonGroup colorButtonGroup = new ButtonGroup();
+
+		JRadioButtonMenuItem colorBlack = new JRadioButtonMenuItem("Black");
+		colorBlack.setSelected(true);
+		colorBlack.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				colorEvent(frame, "Black");
+			}
+		});
+		colorEvent(frame, "Black");
+
+		JRadioButtonMenuItem colorRed = new JRadioButtonMenuItem("Red");
+		colorRed.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				colorEvent(frame, "Red");
+			}
+		});
+
+		JRadioButtonMenuItem colorBlue = new JRadioButtonMenuItem("Blue");
+		colorBlue.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				colorEvent(frame, "Blue");
+			}
+		});
+
+		colorMenu.add(colorBlack);
+		colorMenu.add(colorRed);
+		colorMenu.add(colorBlue);
+
+		colorButtonGroup.add(colorBlack);
+		colorButtonGroup.add(colorRed);
+		colorButtonGroup.add(colorBlue);
+
+		this.add(colorMenu);
 	}
 	
 	private void rectangleEvent(MainFrame frame) {
@@ -126,5 +184,18 @@ public class Menu extends JMenuBar {
 	private void lineEvent(MainFrame frame) {
 		frame.getDrawingPanel().setCurrentShape(new Line());
 		currentShape.setText("Drawing: Line");
+	}
+
+	private void freehandEvent(MainFrame frame) {
+		frame.getDrawingPanel().setCurrentShape(new Freehand());
+		currentShape.setText("Drawing: Freehand");
+	}
+
+	private void colorEvent(MainFrame frame, String color) {
+		switch (color) {
+			case "Black" -> frame.getDrawingPanel().setCurrentColor(Color.BLACK);
+			case "Red" -> frame.getDrawingPanel().setCurrentColor(Color.RED);
+			case "Blue" -> frame.getDrawingPanel().setCurrentColor(Color.BLUE);
+		}
 	}
 }

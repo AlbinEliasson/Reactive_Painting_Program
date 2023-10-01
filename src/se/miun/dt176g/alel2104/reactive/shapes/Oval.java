@@ -12,6 +12,7 @@ public class Oval extends Shape {
         Graphics2D g2 = (Graphics2D) g; // Type-cast the parameter to Graphics2D.
 
         g2.setStroke(new BasicStroke(getThickness()));
+        g2.setColor(getColor());
         g2.drawOval(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
         System.out.println(getCoordinates().getX() + " " + getCoordinates().getY());
     }
