@@ -21,15 +21,17 @@ public class Client {
     }
 
     public void startClient() {
+        System.out.println("Starting client and accessing...");
         Disposable getShapeDisposable = getShapeObservable()
                 .observeOn(Schedulers.io())
                 .doOnDispose(socket::close)
                 .subscribe(shape -> System.out.println(shape.getClass()), System.err::println);
-
+        // Store the shapes later on
         disposables.add(getShapeDisposable);
     }
 
     public void stopClient() {
+        System.out.println("Disconnecting client...!");
         disposables.clear();
         Schedulers.shutdown();
     }
@@ -52,6 +54,7 @@ public class Client {
     }
 
     public void sendShape(Shape shape) {
+        System.out.println("Sending to server...");
         Disposable sendShapeDisposable = Observable.defer(() -> {
             try {
                 ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());

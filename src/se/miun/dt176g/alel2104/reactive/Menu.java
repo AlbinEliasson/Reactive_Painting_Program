@@ -54,6 +54,14 @@ public class Menu extends JMenuBar {
 		JMenuItem clearCanvas = new JMenuItem("Clear canvas");
 		clearCanvas.addActionListener(e -> clearCanvasEvent(frame));
 
+		JMenuItem hostServer = new JMenuItem("Host server");
+		hostServer.addActionListener(e -> System.out.println("Hosting server"));
+
+		JMenuItem connectToSever = new JMenuItem("Connect to server");
+		connectToSever.addActionListener(e -> System.out.println("Connect to server"));
+
+		optionsMenu.add(hostServer);
+		optionsMenu.add(connectToSever);
 		optionsMenu.add(clearCanvas);
 		this.add(optionsMenu);
 	}
@@ -66,21 +74,21 @@ public class Menu extends JMenuBar {
 		thin.setSelected(true);
 		thin.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				frame.getDrawingPanel().setCurrentThickness(thinLine);
+				frame.getDrawingPanel().getEventShapeHandler().setCurrentThickness(thinLine);
 			}
 		});
 
 		JRadioButtonMenuItem medium = new JRadioButtonMenuItem("Medium");
 		medium.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				frame.getDrawingPanel().setCurrentThickness(mediumLine);
+				frame.getDrawingPanel().getEventShapeHandler().setCurrentThickness(mediumLine);
 			}
 		});
 
 		JRadioButtonMenuItem thick = new JRadioButtonMenuItem("Thick");
 		thick.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				frame.getDrawingPanel().setCurrentThickness(thickLine);
+				frame.getDrawingPanel().getEventShapeHandler().setCurrentThickness(thickLine);
 			}
 		});
 
@@ -181,30 +189,30 @@ public class Menu extends JMenuBar {
 	}
 	
 	private void rectangleEvent(MainFrame frame) {
-		frame.getDrawingPanel().setCurrentShape(new Rectangle());
+		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Rectangle());
 		currentShape.setText("Drawing: Rectangle");
 	}
 
 	private void ovalEvent(MainFrame frame) {
-		frame.getDrawingPanel().setCurrentShape(new Oval());
+		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Oval());
 		currentShape.setText("Drawing: Oval");
 	}
 
 	private void lineEvent(MainFrame frame) {
-		frame.getDrawingPanel().setCurrentShape(new Line());
+		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Line());
 		currentShape.setText("Drawing: Line");
 	}
 
 	private void freehandEvent(MainFrame frame) {
-		frame.getDrawingPanel().setCurrentShape(new Freehand());
+		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Freehand());
 		currentShape.setText("Drawing: Freehand");
 	}
 
 	private void colorEvent(MainFrame frame, String color) {
 		switch (color) {
-			case "Black" -> frame.getDrawingPanel().setCurrentColor(Color.BLACK);
-			case "Red" -> frame.getDrawingPanel().setCurrentColor(Color.RED);
-			case "Blue" -> frame.getDrawingPanel().setCurrentColor(Color.BLUE);
+			case "Black" -> frame.getDrawingPanel().getEventShapeHandler().setCurrentColor(Color.BLACK);
+			case "Red" -> frame.getDrawingPanel().getEventShapeHandler().setCurrentColor(Color.RED);
+			case "Blue" -> frame.getDrawingPanel().getEventShapeHandler().setCurrentColor(Color.BLUE);
 		}
 	}
 
