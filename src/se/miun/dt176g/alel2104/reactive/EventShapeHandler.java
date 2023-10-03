@@ -10,15 +10,19 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 
 public class EventShapeHandler {
-    private DrawingPanel drawingPanel;
-    private Observable<MouseEvent> mouseEventObservable;
-    private Shape currentShape;
-    private float currentThickness;
-    private Color currentColor;
+    private final DrawingPanel drawingPanel;
+    private final Observable<MouseEvent> mouseEventObservable;
+    private Shape currentShape = new Rectangle();
+    private float currentThickness = 1;
+    private Color currentColor = Color.BLACK;
 
     public EventShapeHandler(DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
         mouseEventObservable = EventObservable.getMouseEventsObservable(drawingPanel);
+
+        setShapeListener();
+        setThicknessListener();
+        setColorListener();
     }
 
     public void handleMouseEvents() {
@@ -75,7 +79,6 @@ public class EventShapeHandler {
     }
 
     private Shape resetShape(Shape currentShape) {
-
         if (currentShape instanceof Rectangle) {
             currentShape = new Rectangle();
 
@@ -89,6 +92,21 @@ public class EventShapeHandler {
             currentShape = new Freehand();
         }
         return currentShape;
+    }
+
+    private void setShapeListener() {
+        EventObservable.getCurrentShape()
+                .subscribe(this::setCurrentShape);
+    }
+
+    private void setThicknessListener() {
+        EventObservable.getCurrentThickness()
+                .subscribe(this::setCurrentThickness);
+    }
+
+    private void setColorListener() {
+        EventObservable.getCurrentColor()
+                .subscribe(this::setCurrentColor);
     }
 
     public void setCurrentShape(Shape shape) {

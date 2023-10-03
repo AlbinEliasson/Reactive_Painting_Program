@@ -16,7 +16,6 @@ import javax.swing.JRadioButtonMenuItem;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 
-
 /**
  * <h1>Menu</h1> 
  *
@@ -40,9 +39,9 @@ public class Menu extends JMenuBar {
 		currentShape.setForeground(Color.DARK_GRAY);
 
 		initOptionMenu(frame);
-		initDrawMenu(frame);
-		initThicknessMenu(frame);
-		initColorMenu(frame);
+		initDrawMenu();
+		initThicknessMenu();
+		initColorMenu();
 
 		this.add(Box.createHorizontalGlue());
 		this.add(currentShape);
@@ -66,31 +65,28 @@ public class Menu extends JMenuBar {
 		this.add(optionsMenu);
 	}
 
-	private void initThicknessMenu(MainFrame frame) {
+	private void initThicknessMenu() {
 		JMenu thicknessMenu = new JMenu("Thickness");
 		ButtonGroup thicknessButtonGroup = new ButtonGroup();
 
 		JRadioButtonMenuItem thin = new JRadioButtonMenuItem("Thin");
-		thin.setSelected(true);
-		thin.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				frame.getDrawingPanel().getEventShapeHandler().setCurrentThickness(thinLine);
-			}
-		});
-
 		JRadioButtonMenuItem medium = new JRadioButtonMenuItem("Medium");
-		medium.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				frame.getDrawingPanel().getEventShapeHandler().setCurrentThickness(mediumLine);
-			}
-		});
-
 		JRadioButtonMenuItem thick = new JRadioButtonMenuItem("Thick");
-		thick.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				frame.getDrawingPanel().getEventShapeHandler().setCurrentThickness(thickLine);
-			}
-		});
+
+		// Set thin option as initial selected
+		thin.setSelected(true);
+
+		EventObservable.getItemEventsObservable(thin)
+				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(thinLine));
+
+		EventObservable.getItemEventsObservable(medium)
+				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(mediumLine));
+
+		EventObservable.getItemEventsObservable(thick)
+				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(thickLine));
 
 		thicknessMenu.add(thin);
 		thicknessMenu.add(medium);
@@ -103,39 +99,50 @@ public class Menu extends JMenuBar {
 		this.add(thicknessMenu);
 	}
 
-	private void initDrawMenu(MainFrame frame) {
+	private void initDrawMenu() {
 		JMenu drawMenu = new JMenu("Painting options");
 		ButtonGroup drawButtonGroup = new ButtonGroup();
 
 		JRadioButtonMenuItem drawRectangle = new JRadioButtonMenuItem("Rectangle");
-		drawRectangle.setSelected(true);
-		drawRectangle.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				rectangleEvent(frame);
-			}
-		});
-		rectangleEvent(frame);
-
 		JRadioButtonMenuItem drawOval = new JRadioButtonMenuItem("Oval");
-		drawOval.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				ovalEvent(frame);
-			}
-		});
-
 		JRadioButtonMenuItem drawLine = new JRadioButtonMenuItem("Line");
-		drawLine.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				lineEvent(frame);
-			}
-		});
-
 		JRadioButtonMenuItem drawFreehand = new JRadioButtonMenuItem("Freehand");
-		drawFreehand.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				freehandEvent(frame);
-			}
-		});
+
+		// Set Rectangle option as initial selected
+		drawRectangle.setSelected(true);
+		setCurrentShapeText("Drawing: Rectangle");
+
+		EventObservable.getItemEventsObservable(drawRectangle)
+				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
+				.map(itemEvent -> new Rectangle())
+				.subscribe(rectangle -> {
+					EventObservable.setCurrentShapeSubject(rectangle);
+					setCurrentShapeText("Drawing: Rectangle");
+				});
+
+		EventObservable.getItemEventsObservable(drawOval)
+				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
+				.map(integer -> new Oval())
+				.subscribe(oval -> {
+					EventObservable.setCurrentShapeSubject(oval);
+					setCurrentShapeText("Drawing: Oval");
+				});
+
+		EventObservable.getItemEventsObservable(drawLine)
+				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
+				.map(integer -> new Line())
+				.subscribe(line -> {
+					EventObservable.setCurrentShapeSubject(line);
+					setCurrentShapeText("Drawing: Line");
+				});
+
+		EventObservable.getItemEventsObservable(drawFreehand)
+				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
+				.map(integer -> new Freehand())
+				.subscribe(freehand -> {
+					EventObservable.setCurrentShapeSubject(freehand);
+					setCurrentShapeText("Drawing: Freehand");
+				});
 
 		drawMenu.add(drawRectangle);
 		drawMenu.add(drawOval);
@@ -150,32 +157,28 @@ public class Menu extends JMenuBar {
 		this.add(drawMenu);
 	}
 
-	private void initColorMenu(MainFrame frame) {
+	private void initColorMenu() {
 		JMenu colorMenu = new JMenu("Color");
 		ButtonGroup colorButtonGroup = new ButtonGroup();
 
 		JRadioButtonMenuItem colorBlack = new JRadioButtonMenuItem("Black");
-		colorBlack.setSelected(true);
-		colorBlack.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				colorEvent(frame, "Black");
-			}
-		});
-		colorEvent(frame, "Black");
-
 		JRadioButtonMenuItem colorRed = new JRadioButtonMenuItem("Red");
-		colorRed.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				colorEvent(frame, "Red");
-			}
-		});
-
 		JRadioButtonMenuItem colorBlue = new JRadioButtonMenuItem("Blue");
-		colorBlue.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				colorEvent(frame, "Blue");
-			}
-		});
+		colorBlack.setSelected(true);
+
+		EventObservable.getItemEventsObservable(colorBlack)
+				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
+				.subscribe(event -> EventObservable.setCurrentColorSubject(Color.BLACK));
+
+
+		EventObservable.getItemEventsObservable(colorRed)
+				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
+				.subscribe(event -> EventObservable.setCurrentColorSubject(Color.RED));
+
+
+		EventObservable.getItemEventsObservable(colorRed)
+				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
+				.subscribe(event -> EventObservable.setCurrentColorSubject(Color.BLUE));
 
 		colorMenu.add(colorBlack);
 		colorMenu.add(colorRed);
@@ -187,34 +190,6 @@ public class Menu extends JMenuBar {
 
 		this.add(colorMenu);
 	}
-	
-	private void rectangleEvent(MainFrame frame) {
-		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Rectangle());
-		currentShape.setText("Drawing: Rectangle");
-	}
-
-	private void ovalEvent(MainFrame frame) {
-		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Oval());
-		currentShape.setText("Drawing: Oval");
-	}
-
-	private void lineEvent(MainFrame frame) {
-		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Line());
-		currentShape.setText("Drawing: Line");
-	}
-
-	private void freehandEvent(MainFrame frame) {
-		frame.getDrawingPanel().getEventShapeHandler().setCurrentShape(new Freehand());
-		currentShape.setText("Drawing: Freehand");
-	}
-
-	private void colorEvent(MainFrame frame, String color) {
-		switch (color) {
-			case "Black" -> frame.getDrawingPanel().getEventShapeHandler().setCurrentColor(Color.BLACK);
-			case "Red" -> frame.getDrawingPanel().getEventShapeHandler().setCurrentColor(Color.RED);
-			case "Blue" -> frame.getDrawingPanel().getEventShapeHandler().setCurrentColor(Color.BLUE);
-		}
-	}
 
 	private void clearCanvasEvent(MainFrame frame) {
 		int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to clear the canvas?",
@@ -223,5 +198,9 @@ public class Menu extends JMenuBar {
 		if (dialogResult == JOptionPane.YES_OPTION) {
 			frame.getDrawingPanel().clearCanvas();
 		}
+	}
+
+	private void setCurrentShapeText(String text) {
+		currentShape.setText(text);
 	}
 }
