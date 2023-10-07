@@ -7,18 +7,19 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 /**
- * <h1>ConcreteShape</h1> Creates a Circle-object.
- * Concrete class which extends Shape.
- * In other words, this class represents ONE type of shape
- * i.e. a circle, rectangle, n-sided regular polygon (if that's your thing)
+ * <h1>Rectangle</h1>
+ * Component representing the rectangle shape.
  *
- * @author 	--YOUR NAME HERE--
+ * @author 	--Albin Eliasson--
  * @version 1.0
- * @since 	2022-09-08
+ * @since 	2023-10-07
  */
-
 public class Rectangle extends Shape {
 
+	/**
+	 * Overridden draw method for painting the rectangle shape.
+	 * @param g graphics.
+	 */
 	@Override
 	public void draw(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g; // Type-cast the parameter to Graphics2D.

@@ -1,9 +1,11 @@
-package se.miun.dt176g.alel2104.reactive;
+package se.miun.dt176g.alel2104.reactive.gui;
 
+import se.miun.dt176g.alel2104.reactive.EventObservable;
 import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
 import se.miun.dt176g.alel2104.reactive.shapes.Line;
 import se.miun.dt176g.alel2104.reactive.shapes.Oval;
 import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
+import se.miun.dt176g.alel2104.reactive.support.Constants;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -18,25 +20,30 @@ import java.awt.event.ItemEvent;
 
 /**
  * <h1>Menu</h1> 
- *
- * @author 	--YOUR NAME HERE--
+ * The menu of the program.
+ * @author 	--Albin Eliasson--
  * @version 1.0
- * @since 	2022-09-08
+ * @since 	2023-10-07
  */
 public class Menu extends JMenuBar {
 	private static final long serialVersionUID = 1L;
-	private JLabel currentShape;
-	private final long thinLine = 1;
-	private final long mediumLine = 4;
-	private final long thickLine = 8;
+	private JLabel currentShapeLabel;
 
+	/**
+	 * Constructor to initialize the menu swing components.
+	 * @param frame the window frame.
+	 */
 	public Menu(MainFrame frame) {
 		init(frame);
 	}
-	
+
+	/**
+	 * Method for initializing all the menu swing components.
+	 * @param frame the window frame.
+	 */
 	private void init(MainFrame frame) {
-		currentShape = new JLabel();
-		currentShape.setForeground(Color.DARK_GRAY);
+		currentShapeLabel = new JLabel();
+		currentShapeLabel.setForeground(Color.DARK_GRAY);
 
 		initOptionMenu(frame);
 		initDrawMenu();
@@ -44,9 +51,13 @@ public class Menu extends JMenuBar {
 		initColorMenu();
 
 		this.add(Box.createHorizontalGlue());
-		this.add(currentShape);
+		this.add(currentShapeLabel);
 	}
 
+	/**
+	 * Method for initializing the general option menu.
+	 * @param frame the window frame.
+	 */
 	private void initOptionMenu(MainFrame frame) {
 		JMenu optionsMenu = new JMenu("General options");
 
@@ -65,6 +76,9 @@ public class Menu extends JMenuBar {
 		this.add(optionsMenu);
 	}
 
+	/**
+	 * Method for initializing the thickness options menu.
+	 */
 	private void initThicknessMenu() {
 		JMenu thicknessMenu = new JMenu("Thickness");
 		ButtonGroup thicknessButtonGroup = new ButtonGroup();
@@ -75,18 +89,19 @@ public class Menu extends JMenuBar {
 
 		// Set thin option as initial selected
 		thin.setSelected(true);
+		EventObservable.setCurrentThicknessSubject(Constants.menuThinThickness);
 
 		EventObservable.getItemEventsObservable(thin)
 				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
-				.subscribe(event -> EventObservable.setCurrentThicknessSubject(thinLine));
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.menuThinThickness));
 
 		EventObservable.getItemEventsObservable(medium)
 				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
-				.subscribe(event -> EventObservable.setCurrentThicknessSubject(mediumLine));
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.menuMediumThickness));
 
 		EventObservable.getItemEventsObservable(thick)
 				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
-				.subscribe(event -> EventObservable.setCurrentThicknessSubject(thickLine));
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.menuThickThickness));
 
 		thicknessMenu.add(thin);
 		thicknessMenu.add(medium);
@@ -99,6 +114,9 @@ public class Menu extends JMenuBar {
 		this.add(thicknessMenu);
 	}
 
+	/**
+	 * Method for initializing the shape options menu.
+	 */
 	private void initDrawMenu() {
 		JMenu drawMenu = new JMenu("Painting options");
 		ButtonGroup drawButtonGroup = new ButtonGroup();
@@ -111,6 +129,7 @@ public class Menu extends JMenuBar {
 		// Set Rectangle option as initial selected
 		drawRectangle.setSelected(true);
 		setCurrentShapeText("Drawing: Rectangle");
+		EventObservable.setCurrentShapeSubject(new Rectangle());
 
 		EventObservable.getItemEventsObservable(drawRectangle)
 				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
@@ -157,6 +176,9 @@ public class Menu extends JMenuBar {
 		this.add(drawMenu);
 	}
 
+	/**
+	 * Method for initializing the color options' menu.
+	 */
 	private void initColorMenu() {
 		JMenu colorMenu = new JMenu("Color");
 		ButtonGroup colorButtonGroup = new ButtonGroup();
@@ -164,7 +186,10 @@ public class Menu extends JMenuBar {
 		JRadioButtonMenuItem colorBlack = new JRadioButtonMenuItem("Black");
 		JRadioButtonMenuItem colorRed = new JRadioButtonMenuItem("Red");
 		JRadioButtonMenuItem colorBlue = new JRadioButtonMenuItem("Blue");
+
+		// Set black color as initial color
 		colorBlack.setSelected(true);
+		EventObservable.setCurrentColorSubject(Color.BLACK);
 
 		EventObservable.getItemEventsObservable(colorBlack)
 				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
@@ -176,7 +201,7 @@ public class Menu extends JMenuBar {
 				.subscribe(event -> EventObservable.setCurrentColorSubject(Color.RED));
 
 
-		EventObservable.getItemEventsObservable(colorRed)
+		EventObservable.getItemEventsObservable(colorBlue)
 				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
 				.subscribe(event -> EventObservable.setCurrentColorSubject(Color.BLUE));
 
@@ -191,6 +216,10 @@ public class Menu extends JMenuBar {
 		this.add(colorMenu);
 	}
 
+	/**
+	 * Method for creating and executing a clear canvas event with an option dialog.
+	 * @param frame the window frame.
+	 */
 	private void clearCanvasEvent(MainFrame frame) {
 		int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to clear the canvas?",
 				"Reactive Paint" ,JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -200,7 +229,11 @@ public class Menu extends JMenuBar {
 		}
 	}
 
+	/**
+	 * Method for setting the current shape JLabel text.
+	 * @param text the current shape selected.
+	 */
 	private void setCurrentShapeText(String text) {
-		currentShape.setText(text);
+		currentShapeLabel.setText(text);
 	}
 }

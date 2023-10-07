@@ -2,14 +2,18 @@ package se.miun.dt176g.alel2104.reactive;
 
 /**
  * <h1>Drawable</h1>
- * <p>
- * 
- * @author 	--YOUR NAME HERE--
+ * Functional interface for painting components.
+ *
+ * @author  --Albin Eliasson--
  * @version 1.0
- * @since 	2022-09-08
+ * @since   2023-10-07
  */
-
 @FunctionalInterface
 interface Drawable {
+
+	/**
+	 * Method for painting components.
+	 * @param g graphics.
+	 */
 	void draw(java.awt.Graphics g);
 }

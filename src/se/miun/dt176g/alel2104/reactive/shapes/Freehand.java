@@ -1,13 +1,25 @@
 package se.miun.dt176g.alel2104.reactive.shapes;
 
-import se.miun.dt176g.alel2104.reactive.Point;
 import se.miun.dt176g.alel2104.reactive.Shape;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+/**
+ * <h1>FreeHand</h1>
+ * Component representing the freehand shape.
+ *
+ * @author 	--Albin Eliasson--
+ * @version 1.0
+ * @since 	2023-10-07
+ */
 public class Freehand extends Shape {
+
+    /**
+     * Overridden draw method for painting the freehand shape.
+     * @param g graphics.
+     */
     @Override
     public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D) g; // Type-cast the parameter to Graphics2D.

@@ -6,7 +6,20 @@ import java.awt.BasicStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+/**
+ * <h1>Oval</h1>
+ * Component representing the oval shape.
+ *
+ * @author 	--Albin Eliasson--
+ * @version 1.0
+ * @since 	2023-10-07
+ */
 public class Oval extends Shape {
+
+    /**
+     * Overridden draw method for painting the oval shape.
+     * @param g graphics.
+     */
     @Override
     public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D) g; // Type-cast the parameter to Graphics2D.

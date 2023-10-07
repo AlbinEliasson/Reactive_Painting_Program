@@ -2,43 +2,72 @@ package se.miun.dt176g.alel2104.reactive;
 
 /**
  * <h1>Point</h1> 
+ * The point component which represents an x and Y position from the GUI.
  *
- * @author 	--YOUR NAME HERE--
+ * @author  --Albin Eliasson--
  * @version 1.0
- * @since 	2022-09-08
+ * @since   2023-10-07
  */
-
 public class Point {
-
 	private int x, y;
 
+	/**
+	 * Constructor to initialize the x and y coordinates.
+	 * @param x the x-coordinate.
+	 * @param y the y-coordinate.
+	 */
 	public Point(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
 
+	/**
+	 * Simple getter for the x-coordinate.
+	 * @return the x-coordinate.
+	 */
 	public int getX() {
 		return x;
 	}
 
+	/**
+	 * Simple getter for the y-coordinate.
+	 * @return the y-coordinate.
+	 */
 	public int getY() {
 		return y;
 	}
 
+	/**
+	 * Method for setting the current x-coordinate.
+	 * @param x the x-position.
+	 */
 	public void setX(int x) {
 		this.x = x;
 	}
 
+	/**
+	 * Method for setting the current y-coordinate.
+	 * @param y the y-coordinate.
+	 */
 	public void setY(int y) {
 		this.y = y;
 	}
 
+	/**
+	 * Overridden method for checking if two points have the same x and y-coordinates.
+	 * @param o the provided point.
+	 * @return true if equal.
+	 */
 	@Override
 	public boolean equals(Object o) {
 		Point p = (Point) o;
 		return (x == p.getX() && y == p.getY());
 	}
-	
+
+	/**
+	 * Overridden method for making printing of the current x and y-coordinates easier.
+	 * @return a string of the x and y-coordinates.
+	 */
 	@Override
 	public String toString() {
 		return "["+x+","+y+"]";

@@ -1,27 +1,31 @@
-package se.miun.dt176g.alel2104.reactive;
+package se.miun.dt176g.alel2104.reactive.gui;
+
+import se.miun.dt176g.alel2104.reactive.support.Constants;
 
 import java.awt.*;
 import javax.swing.*;
 
 /**
  * <h1>MainFrame</h1> 
- * JFrame to contain the rest
+ * JFrame which is the window frame of the program.
  *
- * @author 	--YOUR NAME HERE--
+ * @author 	--Albin Eliasson--
  * @version 1.0
- * @since 	2022-09-08
+ * @since 	2023-10-07
  */
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame {
-
 	private String header;
 	private DrawingPanel drawingPanel;
 
+	/**
+	 * Constructor to set window preferences and adding swing components.
+	 */
 	public MainFrame() {
 
 		// default window-size.
-		this.setSize(1200, 900);
+		this.setSize(Constants.defaultWindowWidth, Constants.defaultWindowHeight);
 		// application closes when the "x" in the upper-right corner is clicked.
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -43,6 +47,10 @@ public class MainFrame extends JFrame {
 
 	}
 
+	/**
+	 * Simple getter method for the drawing JPanel component.
+	 * @return the drawing JPanel component.
+	 */
 	public DrawingPanel getDrawingPanel() {
 		return drawingPanel;
 	}

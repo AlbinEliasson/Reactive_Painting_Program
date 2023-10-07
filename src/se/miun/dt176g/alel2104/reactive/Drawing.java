@@ -1,42 +1,45 @@
 package se.miun.dt176g.alel2104.reactive;
 
-
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-
 /**
  * <h1>Drawing</h1> 
- * Let this class store an arbitrary number of AbstractShape-objects in
- * some kind of container. 
+ * The drawing component which holds and paints all the shape components.
  *
- * @author 	--YOUR NAME HERE--
+ * @author  --Albin Eliasson--
  * @version 1.0
- * @since 	2022-09-08
+ * @since   2023-10-07
  */
-
-
 public class Drawing implements Drawable {
-	// private SomeContainer shapes;
-	private ArrayList<Shape> shapes;
+	private final ArrayList<Shape> shapes;
 
+	/**
+	 * Constructor to initialize the shape container.
+	 */
 	public Drawing() {
 		shapes = new ArrayList<>();
 	}
 	
 	/**
-	 * <h1>addShape</h1> add a shape to the "SomeContainer shapes"
-	 * 
-	 * @param s a {@link Shape} object.
+	 * Method for adding new shapes to the shape container.
+	 * @param s the shape to be added.
 	 */
 	public void addShape(Shape s) {
 		shapes.add(s);
 	}
 
+	/**
+	 * Method for removing all shapes from the shape container.
+	 */
 	public void clearShapes() {
 		shapes.clear();
 	}
 
+	/**
+	 * Overridden method for painting all shapes from the shape container.
+	 * @param g graphics.
+	 */
 	@Override
 	public void draw(Graphics g) {
 		shapes.forEach(shape -> shape.draw(g));
@@ -44,5 +47,4 @@ public class Drawing implements Drawable {
 		// iterate over all shapes and draw them using the draw-method found in
 		// each concrete subclass.
 	}
-
 }
