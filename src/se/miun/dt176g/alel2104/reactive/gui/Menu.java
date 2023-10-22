@@ -1,6 +1,8 @@
 package se.miun.dt176g.alel2104.reactive.gui;
 
 import se.miun.dt176g.alel2104.reactive.EventObservable;
+import se.miun.dt176g.alel2104.reactive.connect.Client;
+import se.miun.dt176g.alel2104.reactive.connect.Server;
 import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
 import se.miun.dt176g.alel2104.reactive.shapes.Line;
 import se.miun.dt176g.alel2104.reactive.shapes.Oval;
@@ -28,6 +30,8 @@ import java.awt.event.ItemEvent;
 public class Menu extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	private JLabel currentShapeLabel;
+	private Server server;
+	private Client client;
 
 	/**
 	 * Constructor to initialize the menu swing components.
@@ -64,14 +68,46 @@ public class Menu extends JMenuBar {
 		JMenuItem clearCanvas = new JMenuItem("Clear canvas");
 		clearCanvas.addActionListener(e -> clearCanvasEvent(frame));
 
+		JMenuItem disconnectServer = new JMenuItem("Stop hosting server");
+		disconnectServer.setEnabled(false);
+		disconnectServer.addActionListener(e -> {
+			if (server != null) {
+				server.closeServer();
+				disconnectServer.setEnabled(false);
+			}
+		});
+
 		JMenuItem hostServer = new JMenuItem("Host server");
-		hostServer.addActionListener(e -> System.out.println("Hosting server"));
+		hostServer.addActionListener(e -> {
+			System.out.println("Hosting server");
+			if (server == null) {
+				server = new Server(Constants.serverPort);
+				server.startServer();
+				disconnectServer.setEnabled(true);
+			}
+		});
+
+		JMenuItem disconnectFromServer = new JMenuItem("Disconnect from server");
+		disconnectFromServer.setEnabled(false);
+		disconnectFromServer.addActionListener(e -> {
+			if (client != null) {
+				client.stopClient();
+			}
+		});
 
 		JMenuItem connectToSever = new JMenuItem("Connect to server");
-		connectToSever.addActionListener(e -> System.out.println("Connect to server"));
+		connectToSever.addActionListener(e -> {
+			System.out.println("Connect to server");
+			client = new Client(Constants.host, Constants.serverPort, frame.getDrawingPanel());
+			client.startClient();
+			frame.getDrawingPanel().setClient(client);
+			disconnectFromServer.setEnabled(true);
+		});
 
 		optionsMenu.add(hostServer);
+		optionsMenu.add(disconnectServer);
 		optionsMenu.add(connectToSever);
+		optionsMenu.add(disconnectFromServer);
 		optionsMenu.add(clearCanvas);
 		this.add(optionsMenu);
 	}

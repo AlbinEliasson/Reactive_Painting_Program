@@ -1,5 +1,7 @@
 package se.miun.dt176g.alel2104.reactive;
 
+import java.io.Serializable;
+
 /**
  * <h1>Point</h1> 
  * The point component which represents an x and Y position from the GUI.
@@ -8,7 +10,7 @@ package se.miun.dt176g.alel2104.reactive;
  * @version 1.0
  * @since   2023-10-07
  */
-public class Point {
+public class Point implements Serializable {
 	private int x, y;
 
 	/**

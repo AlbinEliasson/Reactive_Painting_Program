@@ -1,6 +1,7 @@
 package se.miun.dt176g.alel2104.reactive;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * @version 1.0
  * @since   2023-10-07
  */
-public abstract class Shape implements Drawable {
+public abstract class Shape implements Drawable, Serializable {
     // private member : some container storing coordinates
     private Point coordinates;
     private Point size;

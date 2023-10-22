@@ -48,6 +48,10 @@ public class EventShapeHandler {
                     if (mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
                         currentShape = resetShape(currentShape);
                         drawingPanel.getDrawing().addShape(currentShape);
+                    } else if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED) {
+                        if (drawingPanel.getClient() != null) {
+                            drawingPanel.getClient().sendShape(currentShape);
+                        }
                     }
                 })
                 .filter(mouseEvent -> mouseEvent.getID() == MouseEvent.MOUSE_PRESSED)

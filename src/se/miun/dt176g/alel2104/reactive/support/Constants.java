@@ -14,4 +14,6 @@ public interface Constants {
     long menuThickThickness = 8;
     int defaultWindowWidth = 1200;
     int defaultWindowHeight = 900;
+    int serverPort = 12345;
+    String host = "localhost";
 }

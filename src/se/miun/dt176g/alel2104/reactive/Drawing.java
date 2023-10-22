@@ -43,7 +43,7 @@ public class Drawing implements Drawable {
 	@Override
 	public void draw(Graphics g) {
 		shapes.forEach(shape -> shape.draw(g));
-		System.out.println(shapes.size() + " AMOUNT OF SHAPES");
+		//System.out.println(shapes.size() + " AMOUNT OF SHAPES");
 		// iterate over all shapes and draw them using the draw-method found in
 		// each concrete subclass.
 	}

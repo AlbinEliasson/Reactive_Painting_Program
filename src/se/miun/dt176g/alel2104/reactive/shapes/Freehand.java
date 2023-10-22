@@ -5,6 +5,7 @@ import se.miun.dt176g.alel2104.reactive.Shape;
 import java.awt.BasicStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 /**
  * <h1>FreeHand</h1>
@@ -14,7 +15,7 @@ import java.awt.Graphics2D;
  * @version 1.0
  * @since 	2023-10-07
  */
-public class Freehand extends Shape {
+public class Freehand extends Shape implements Serializable {
 
     /**
      * Overridden draw method for painting the freehand shape.

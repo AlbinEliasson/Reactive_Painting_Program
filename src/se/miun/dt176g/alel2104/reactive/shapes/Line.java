@@ -5,6 +5,7 @@ import se.miun.dt176g.alel2104.reactive.Shape;
 import java.awt.BasicStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 /**
  * <h1>Line</h1>
@@ -14,7 +15,7 @@ import java.awt.Graphics2D;
  * @version 1.0
  * @since 	2023-10-07
  */
-public class Line extends Shape {
+public class Line extends Shape implements Serializable {
 
     /**
      * Overridden draw method for painting the line shape.
@@ -27,6 +28,6 @@ public class Line extends Shape {
         g2.setStroke(new BasicStroke(getThickness()));
         g2.setColor(getColor());
         g2.drawLine(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
-        System.out.println(getCoordinates().getX() + " " + getCoordinates().getY());
+        //System.out.println(getCoordinates().getX() + " " + getCoordinates().getY());
     }
 }
