@@ -4,26 +4,26 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import se.miun.dt176g.alel2104.reactive.Event;
 import se.miun.dt176g.alel2104.reactive.EventObservable;
 import se.miun.dt176g.alel2104.reactive.Shape;
-import se.miun.dt176g.alel2104.reactive.gui.DrawingPanel;
 import se.miun.dt176g.alel2104.reactive.gui.MainFrame;
-import se.miun.dt176g.alel2104.reactive.gui.Menu;
-import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
+import se.miun.dt176g.alel2104.reactive.support.Constants;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Objects;
 
 public class Client {
-    private Socket socket;
+    private final Socket socket;
     private final CompositeDisposable disposables;
     private ObjectOutputStream outputStream;
-    private DrawingPanel drawingPanel;
+    private final MainFrame frame;
 
-    public Client(String host, int port, DrawingPanel drawingPanel) throws IOException {
-        this.drawingPanel = drawingPanel;
+    public Client(String host, int port, MainFrame frame) throws IOException {
+        this.frame = frame;
         disposables = new CompositeDisposable();
 
         socket = new Socket(host, port);
@@ -35,6 +35,8 @@ public class Client {
         EventObservable.setIsClientActiveSubject(true);
 
         initializeObjectOutputStream(socket);
+
+        setEventListener();
 
         Disposable disposable = Observable.create(emitter -> getObjectInputStream(socket)
                         .doOnSubscribe(disposables::add)
@@ -50,11 +52,15 @@ public class Client {
 
                     }
                 })).subscribeOn(Schedulers.io())
-                .map(object -> (Shape) object)
-                .subscribe(shape -> {
-                    System.out.println("Client received shape: " + shape);
-                    drawingPanel.getDrawing().addShape(shape);
-                    drawingPanel.redraw();
+                .subscribe(object -> {
+                    if (object instanceof Shape shape) {
+                        System.out.println("Client received shape: " + shape);
+                        frame.getDrawingPanel().getDrawing().addShape(shape);
+                        frame.getDrawingPanel().redraw();
+                    } else if (object instanceof Event event) {
+                        System.out.println("Client received event: " + event.getCurrentEvent());
+                        handleEvent(event);
+                    }
                 });
         disposables.add(disposable);
     }
@@ -85,16 +91,16 @@ public class Client {
         EventObservable.setIsClientActiveSubject(false);
     }
 
-    public void sendShape(Shape shape) {
+    public void sendObject(Object object) {
         System.out.println("Sending to server...");
 
-        Disposable disposable = Observable.just(shape)
+        Disposable disposable = Observable.just(object)
                 .subscribeOn(Schedulers.io())
-                .subscribe(newShape -> {
+                .subscribe(newObject -> {
                     if (!socket.isClosed()) {
                         try {
-                            outputStream.writeObject(newShape);
-                            System.out.println("Client is sending shape: " + newShape.getClass().getName());
+                            outputStream.writeObject(newObject);
+                            System.out.println("Client is sending object: " + newObject.getClass().getName());
                         } catch (IOException e) {
                             System.out.println("Server Disconnected");
                             stopClient();
@@ -104,6 +110,20 @@ public class Client {
                 });
 
         disposables.add(disposable);
+    }
+
+    private void setEventListener() {
+        EventObservable.getEventSubject()
+                .subscribe(event -> {
+                    sendObject(event);
+                    handleEvent(event);
+                });
+    }
+
+    private void handleEvent(Event event) {
+        if (Objects.equals(event.getCurrentEvent(), Constants.CLEAR_CANVAS_EVENT)) {
+            event.clearCanvasEvent(frame.getMenu());
+        }
     }
 
 //    private boolean isSentShapeReceivedShape(Shape sentShape, Shape receivedShape) {

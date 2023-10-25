@@ -1,9 +1,9 @@
 package se.miun.dt176g.alel2104.reactive.gui;
 
-import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import se.miun.dt176g.alel2104.reactive.Event;
 import se.miun.dt176g.alel2104.reactive.EventObservable;
 import se.miun.dt176g.alel2104.reactive.connect.Client;
 import se.miun.dt176g.alel2104.reactive.connect.Server;
@@ -24,6 +24,7 @@ import javax.swing.JRadioButtonMenuItem;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
+import java.io.Serial;
 
 /**
  * <h1>Menu</h1> 
@@ -33,11 +34,12 @@ import java.io.IOException;
  * @since 	2023-10-07
  */
 public class Menu extends JMenuBar {
+	@Serial
 	private static final long serialVersionUID = 1L;
 	private JLabel currentShapeLabel;
 	private Server server;
 	private Client client;
-	private MainFrame frame;
+	private final MainFrame frame;
 	private Disposable clientDisposable;
 	private Disposable serverDisposable;
 	private JMenuItem hostServer;
@@ -77,19 +79,25 @@ public class Menu extends JMenuBar {
 	 */
 	private void initOptionMenu() {
 		JMenu optionsMenu = new JMenu("General options");
-
 		JMenuItem clearCanvas = new JMenuItem("Clear canvas");
-		clearCanvas.addActionListener(e -> clearCanvasEvent());
-
 		hostServer = new JMenuItem("Host server");
 		disconnectServer = new JMenuItem("Stop hosting server");
 		disconnectFromServer = new JMenuItem("Disconnect from server");
 		connectToSever = new JMenuItem("Connect to server");
 
+		EventObservable.getItemActionEventsObservable(clearCanvas)
+				.subscribe(event -> {
+					if (client == null && server == null) {
+						clearCanvasEvent();
+					} else {
+						EventObservable.setCurrentEventSubject(new Event(Constants.CLEAR_CANVAS_EVENT));
+					}
+				});
+
 		EventObservable.getItemActionEventsObservable(hostServer)
 				.subscribe(event -> {
 					try {
-						server = new Server(Constants.serverPort, frame.getDrawingPanel());
+						server = new Server(Constants.SERVER_PORT, frame);
 						serverDisposable = Observable.just(server)
 								.subscribeOn(Schedulers.single())
 								.doOnNext(Server::startServer)
@@ -106,17 +114,14 @@ public class Menu extends JMenuBar {
                     }
                 });
 
-		disconnectServer.setEnabled(false);
 		EventObservable.getItemActionEventsObservable(disconnectServer)
-				.subscribe(event -> {
-					server.closeServer();
-					server = null;
-				});
+				.doOnSubscribe(disposable -> disconnectServer.setEnabled(false))
+				.subscribe(event -> server.closeServer());
 
 		EventObservable.getItemActionEventsObservable(connectToSever)
 				.subscribe(event -> {
 					try {
-						client = new Client(Constants.host, Constants.serverPort, frame.getDrawingPanel());
+						client = new Client(Constants.HOST, Constants.SERVER_PORT, frame);
 
 						clientDisposable = Observable.just(client)
 								.subscribeOn(Schedulers.single())
@@ -134,12 +139,9 @@ public class Menu extends JMenuBar {
                     }
 				});
 
-		disconnectFromServer.setEnabled(false);
 		EventObservable.getItemActionEventsObservable(disconnectFromServer)
-				.subscribe(event -> {
-					client.stopClient();
-					client = null;
-				});
+				.doOnSubscribe(disposable -> disconnectFromServer.setEnabled(false))
+				.subscribe(event -> client.stopClient());
 
 		optionsMenu.add(hostServer);
 		optionsMenu.add(disconnectServer);
@@ -153,6 +155,7 @@ public class Menu extends JMenuBar {
 		if (clientDisposable != null) {
 			clientDisposable.dispose();
 		}
+		client = null;
 		disconnectFromServer.setEnabled(false);
 		hostServer.setEnabled(true);
 		connectToSever.setEnabled(true);
@@ -163,6 +166,7 @@ public class Menu extends JMenuBar {
 		if (serverDisposable != null) {
 			serverDisposable.dispose();
 		}
+		server = null;
 		disconnectServer.setEnabled(false);
 		hostServer.setEnabled(true);
 		connectToSever.setEnabled(true);
@@ -199,19 +203,19 @@ public class Menu extends JMenuBar {
 
 		// Set thin option as initial selected
 		thin.setSelected(true);
-		EventObservable.setCurrentThicknessSubject(Constants.menuThinThickness);
+		EventObservable.setCurrentThicknessSubject(Constants.MENU_THIN_THICKNESS);
 
 		EventObservable.getItemEventsObservable(thin)
 				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
-				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.menuThinThickness));
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.MENU_THIN_THICKNESS));
 
 		EventObservable.getItemEventsObservable(medium)
 				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
-				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.menuMediumThickness));
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.MENU_MEDIUM_THICKNESS));
 
 		EventObservable.getItemEventsObservable(thick)
 				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
-				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.menuThickThickness));
+				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.MENU_THICK_THICKNESS));
 
 		thicknessMenu.add(thin);
 		thicknessMenu.add(medium);
@@ -329,13 +333,8 @@ public class Menu extends JMenuBar {
 	/**
 	 * Method for creating and executing a clear canvas event with an option dialog.
 	 */
-	private void clearCanvasEvent() {
-		int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to clear the canvas?",
-				"Reactive Paint" ,JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-		if (dialogResult == JOptionPane.YES_OPTION) {
-			frame.getDrawingPanel().clearCanvas();
-		}
+	public void clearCanvasEvent() {
+		frame.getDrawingPanel().clearCanvas();
 	}
 
 	public void connectServerEventError(MainFrame frame, IOException e, String message) {

@@ -1,8 +1,6 @@
 package se.miun.dt176g.alel2104.reactive;
 
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import se.miun.dt176g.alel2104.reactive.connect.Client;
 import se.miun.dt176g.alel2104.reactive.connect.Server;
@@ -32,6 +30,7 @@ public class EventObservable {
     private static final PublishSubject<Client> currentClientSubject = PublishSubject.create();
     private static final PublishSubject<Boolean> isClientActiveSubject = PublishSubject.create();
     private static final PublishSubject<Boolean> isServerActiveSubject = PublishSubject.create();
+    private static final PublishSubject<Event> currentEventSubject = PublishSubject.create();
 
     /**
      * Method for setting a mouse listener and returning an observable of the events.
@@ -112,6 +111,14 @@ public class EventObservable {
 
     public static void setIsServerActiveSubject(boolean active) {
         isServerActiveSubject.onNext(active);
+    }
+
+    public static Observable<Event> getEventSubject() {
+        return currentEventSubject;
+    }
+
+    public static void setCurrentEventSubject(Event currentEvent) {
+        currentEventSubject.onNext(currentEvent);
     }
 
     /**

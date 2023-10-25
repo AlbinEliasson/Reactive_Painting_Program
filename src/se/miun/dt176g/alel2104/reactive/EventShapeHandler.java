@@ -60,9 +60,9 @@ public class EventShapeHandler {
                         drawingPanel.getDrawing().addShape(currentShape);
                     } else if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED) {
                         if (currentClient != null && isClientActive) {
-                            currentClient.sendShape(currentShape);
+                            currentClient.sendObject(currentShape);
                         } else if (currentServer != null && isServerActive) {
-                            currentServer.sendServerShape(currentShape);
+                            currentServer.sendServerObject(currentShape);
                         }
                     }
                 })

@@ -2,16 +2,16 @@ package se.miun.dt176g.alel2104.reactive.connect;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import io.reactivex.rxjava3.subjects.Subject;
+import se.miun.dt176g.alel2104.reactive.Event;
 import se.miun.dt176g.alel2104.reactive.EventObservable;
 import se.miun.dt176g.alel2104.reactive.Shape;
-import se.miun.dt176g.alel2104.reactive.gui.DrawingPanel;
-import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
+import se.miun.dt176g.alel2104.reactive.gui.MainFrame;
+import se.miun.dt176g.alel2104.reactive.support.Constants;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -23,23 +23,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 public class Server {
-    private ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
     private boolean acceptConnection = true;
     private final List<Socket> clientSockets;
     private final Subject<Socket> clientConnections;
-    private final Subject<Shape> shapeStream;
-    private final DrawingPanel drawingPanel;
+    private final Subject<Object> objectStream;
+    private final MainFrame frame;
     private final Map<Integer, Disposable> disposableMap;
     private final Map<Integer, Disposable> shapeDisposableMap;
 
-    public Server(int serverPort, DrawingPanel drawingPanel) throws IOException {
-        this.drawingPanel = drawingPanel;
+    public Server(int serverPort, MainFrame frame) throws IOException {
+        this.frame = frame;
         clientSockets = new ArrayList<>();
         clientConnections = PublishSubject.create();
-        shapeStream = ReplaySubject.create();
+        objectStream = ReplaySubject.create();
         disposableMap = new HashMap<>();
         shapeDisposableMap = new HashMap<>();
 
@@ -50,6 +50,8 @@ public class Server {
         System.out.println("Starting server and waiting for client connections!");
 
         EventObservable.setIsServerActiveSubject(true);
+
+        setEventListener();
 
         Completable.create(emitter -> getClientConnection())
                 .subscribeOn(Schedulers.single())
@@ -101,42 +103,54 @@ public class Server {
                 .doOnSubscribe(disposable -> disposableMap.put(clientSocket.hashCode(), disposable))
                 .doOnError(this::handleError)
                 .onErrorComplete(err -> err instanceof ConnectionError)
-                .map(o -> (Shape) o)
-                .doOnNext(shape -> {
-                    System.out.println("Server received shape: " + shape.getClass().getName()
-                            + "from client: " + clientSocket.getInetAddress());
+                .doOnNext(object -> {
+                    if (object instanceof Shape shape) {
+                        System.out.println("Server received shape: " + shape.getClass().getName()
+                                + "from client: " + clientSocket.getInetAddress());
 
-                    // Set client hashCode to the shape to prevent sending the shape back to client
-                    shape.setClientHashCode(clientSocket.hashCode());
+                        // Set client hashCode to the shape to prevent sending the shape back to client
+                        shape.setClientHashCode(clientSocket.hashCode());
 
-                    // Adding and drawing the shape to the server user
-                    drawingPanel.getDrawing().addShape(shape);
-                    drawingPanel.redraw();
+                        // Adding and drawing the shape to the server user
+                        frame.getDrawingPanel().getDrawing().addShape(shape);
+                        frame.getDrawingPanel().redraw();
+
+                    } else if (object instanceof Event event) {
+                        System.out.println("Server received an event from client: " + clientSocket.getInetAddress());
+                        event.setClientHashCode(clientSocket.hashCode());
+                        handleEvent(event);
+                    }
                 })
-                .subscribe(shapeStream::onNext
+                .subscribe(objectStream::onNext
                         , err -> System.err.println(err.getMessage())
                         , () -> System.out.println("Socket closed"));
 
-        shapeStream.subscribeOn(Schedulers.io())
+        objectStream.subscribeOn(Schedulers.io())
                 .doOnSubscribe(disposable -> shapeDisposableMap.put(clientSocket.hashCode(), disposable))
-                .withLatestFrom(getObjectOutputStream(clientSocket), (shape, outputStream) -> {
-                    System.out.println("Server is trying to send shape: " + shape + "to client: "
-                            + clientSocket.getInetAddress());
+                .withLatestFrom(getObjectOutputStream(clientSocket), (object, outputStream) -> {
+                    if (object instanceof Shape shape) {
+                        System.out.println("Server is trying to send shape: " + shape + "to client: "
+                                + clientSocket.getInetAddress());
 
-                    // Check if client hashCode is 0 (the server user sent the shape) or if the shape is
-                    // connected to the client to prevent sending the shape back to the client.
-                    if (shape.getClientHashCode() == 0 || shape.getClientHashCode() != clientSocket.hashCode()) {
-                        outputStream.writeObject(shape);
+                        // Check if client hashCode is 0 (the server user sent the shape) or if the shape is
+                        // connected to the client to prevent sending the shape back to the client.
+                        if (shape.getClientHashCode() == 0 || shape.getClientHashCode() != clientSocket.hashCode()) {
+                            outputStream.writeObject(shape);
+                        }
+                    } else if (object instanceof Event event) {
+                        if (event.getClientHashCode() == 0 || event.getClientHashCode() != clientSocket.hashCode()) {
+                            outputStream.writeObject(event);
+                        }
                     }
                     return true;
                 })
                 .subscribe();
     }
 
-    public void sendServerShape(Shape sentShape) {
-        Observable.just(sentShape)
+    public void sendServerObject(Object object) {
+        Observable.just(object)
                 .subscribeOn(Schedulers.io())
-                .subscribe(shapeStream::onNext);
+                .subscribe(objectStream::onNext);
     }
 
     public void closeServer() {
@@ -187,6 +201,20 @@ public class Server {
             disposableMap.remove(socket.hashCode());
             shapeDisposableMap.get(socket.hashCode()).dispose();
             shapeDisposableMap.remove(socket.hashCode());
+        }
+    }
+
+    private void setEventListener() {
+        EventObservable.getEventSubject()
+                .subscribe(event -> {
+                    sendServerObject(event);
+                    handleEvent(event);
+                });
+    }
+
+    private void handleEvent(Event event) {
+        if (Objects.equals(event.getCurrentEvent(), Constants.CLEAR_CANVAS_EVENT)) {
+            event.clearCanvasEvent(frame.getMenu());
         }
     }
 

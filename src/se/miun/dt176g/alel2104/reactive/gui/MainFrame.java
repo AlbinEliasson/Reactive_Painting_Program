@@ -14,11 +14,10 @@ import javax.swing.*;
  * @since 	2023-10-07
  */
 
-@SuppressWarnings("serial")
 public class MainFrame extends JFrame {
 	private String header;
-	private DrawingPanel drawingPanel;
-	private Menu menu;
+	private final DrawingPanel drawingPanel;
+	private final Menu menu;
 
 	/**
 	 * Constructor to set window preferences and adding swing components.
@@ -26,7 +25,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 
 		// default window-size.
-		this.setSize(Constants.defaultWindowWidth, Constants.defaultWindowHeight);
+		this.setSize(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT);
 		// application closes when the "x" in the upper-right corner is clicked.
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
