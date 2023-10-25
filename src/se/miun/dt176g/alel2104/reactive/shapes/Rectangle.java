@@ -27,8 +27,10 @@ public class Rectangle extends Shape implements Serializable {
 		// Draw using g2.
 		g2.setStroke(new BasicStroke(getThickness()));
 		g2.setColor(getColor());
-		g2.drawRect(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
-		//System.out.println(getCoordinates().getX() + " " + getCoordinates().getY());
+
+		if (getCoordinates() != null) {
+			g2.drawRect(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
+		}
 	}
 
 }

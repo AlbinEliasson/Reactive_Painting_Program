@@ -28,6 +28,9 @@ public class Freehand extends Shape implements Serializable {
         g2.setStroke(new BasicStroke(getThickness()));
         g2.setColor(getColor());
 
-        getFreehandCoordinates().forEach(point -> g2.drawLine(point.getX(), point.getY(), point.getX(), point.getY()));
+        if (getFreehandCoordinates() != null) {
+            getFreehandCoordinates().forEach(point ->
+                    g2.drawLine(point.getX(), point.getY(), point.getX(), point.getY()));
+        }
     }
 }
