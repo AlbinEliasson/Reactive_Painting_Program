@@ -16,12 +16,26 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Objects;
 
+/**
+ * <h1>Client</h1>
+ * The client of the program which users can use to connect to the hosted server.
+ * @author 	--Albin Eliasson--
+ * @version 1.0
+ * @since 	2023-10-07
+ */
 public class Client {
     private final Socket socket;
     private final CompositeDisposable disposables;
     private ObjectOutputStream outputStream;
     private final MainFrame frame;
 
+    /**
+     * Constructor to initialize the client socket, mainframe and the CompositeDisposable.
+     * @param host the host name for the socket.
+     * @param port the port of the socket.
+     * @param frame the main frame.
+     * @throws IOException IOException.
+     */
     public Client(String host, int port, MainFrame frame) throws IOException {
         this.frame = frame;
         disposables = new CompositeDisposable();
@@ -29,6 +43,9 @@ public class Client {
         socket = new Socket(host, port);
     }
 
+    /**
+     * Method for starting the client by listening to the socket for incoming objects.
+     */
     public void startClient() {
         System.out.println("Starting client and accessing...");
 
@@ -65,6 +82,10 @@ public class Client {
         disposables.add(disposable);
     }
 
+    /**
+     * Method for initializing an ObjectOutputStream from the provided sockets OutPutStream.
+     * @param socket the client socket.
+     */
     private void initializeObjectOutputStream(Socket socket) {
         outputStream = Observable.just(socket)
                 .subscribeOn(Schedulers.io())
@@ -73,6 +94,11 @@ public class Client {
                 .blockingFirst();
     }
 
+    /**
+     * Method for creating an ObjectInputStream from the provided sockets InputStream.
+     * @param socket the client socket.
+     * @return an observable of the ObjectInputStream.
+     */
     private Observable<ObjectInputStream> getObjectInputStream(Socket socket) {
         return Observable.just(socket)
                 .subscribeOn(Schedulers.io())
@@ -80,6 +106,9 @@ public class Client {
                 .map(ObjectInputStream::new);
     }
 
+    /**
+     * Method for stopping the client by closing the socket and disposing of resources.
+     */
     public void stopClient() {
         System.out.println("Disconnecting client...!");
         disposables.clear();
@@ -91,6 +120,10 @@ public class Client {
         EventObservable.setIsClientActiveSubject(false);
     }
 
+    /**
+     * Method for sending objects through the socket.
+     * @param object the object to be sent.
+     */
     public void sendObject(Object object) {
         System.out.println("Sending to server...");
 
@@ -112,6 +145,9 @@ public class Client {
         disposables.add(disposable);
     }
 
+    /**
+     * Method for setting the event listener and handle/send the incoming events to server.
+     */
     private void setEventListener() {
         EventObservable.getEventSubject()
                 .subscribe(event -> {
@@ -120,27 +156,13 @@ public class Client {
                 });
     }
 
+    /**
+     * Method for handling and executing the event.
+     * @param event the event object.
+     */
     private void handleEvent(Event event) {
         if (Objects.equals(event.getCurrentEvent(), Constants.CLEAR_CANVAS_EVENT)) {
             event.clearCanvasEvent(frame.getMenu());
         }
     }
-
-//    private boolean isSentShapeReceivedShape(Shape sentShape, Shape receivedShape) {
-//        if (sentShape != null && receivedShape != null) {
-//            if (sentShape.getClass().getName().equals(receivedShape.getClass().getName())) {
-//                if (receivedShape instanceof Freehand) {
-//                    return sentShape.getFreehandCoordinates().equals(receivedShape.getFreehandCoordinates())
-//                            && sentShape.getColor().equals(receivedShape.getColor())
-//                            && sentShape.getThickness() == receivedShape.getThickness();
-//                }
-//                return sentShape.getCoordinates().getX() == receivedShape.getCoordinates().getX()
-//                        && sentShape.getCoordinates().getY() == receivedShape.getCoordinates().getY()
-//                        && sentShape.getHeight() == receivedShape.getHeight()
-//                        && sentShape.getColor().equals(receivedShape.getColor())
-//                        && sentShape.getThickness() == receivedShape.getThickness();
-//            }
-//        }
-//        return false;
-//    }
 }
