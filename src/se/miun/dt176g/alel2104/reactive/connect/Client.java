@@ -20,33 +20,13 @@ public class Client {
     private Socket socket;
     private final CompositeDisposable disposables;
     private ObjectOutputStream outputStream;
-    private Shape sentShape;
-    private MainFrame frame;
+    private DrawingPanel drawingPanel;
 
-    public Client(String host, int port, MainFrame frame) throws IOException {
-        this.frame = frame;
+    public Client(String host, int port, DrawingPanel drawingPanel) throws IOException {
+        this.drawingPanel = drawingPanel;
         disposables = new CompositeDisposable();
 
         socket = new Socket(host, port);
-
-//        Observable.create(emitter -> {
-//            try {
-//                socket = new Socket(host, port);
-//                emitter.onNext(socket);
-//                initializeObjectOutputStream(socket);
-//            } catch (IOException e) {
-//
-//                emitter.onError(e);
-//            }
-//        }).subscribe();
-
-//        try {
-//            socket = new Socket(host, port);
-//            initializeObjectOutputStream(socket);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-
     }
 
     public void startClient() {
@@ -73,23 +53,10 @@ public class Client {
                 .map(object -> (Shape) object)
                 .subscribe(shape -> {
                     System.out.println("Client received shape: " + shape);
-                    if (!isSentShapeReceivedShape(sentShape, shape)) {
-                        frame.getDrawingPanel().getDrawing().addShape(shape);
-                        frame.getDrawingPanel().redraw();
-                    }
+                    drawingPanel.getDrawing().addShape(shape);
+                    drawingPanel.redraw();
                 });
         disposables.add(disposable);
-//        Disposable getShapeDisposable = getShapeObservable()
-//                .observeOn(Schedulers.io())
-//                .doOnDispose(socket::close)
-//                .subscribe(shape -> {
-//                    System.out.println("Client received shape: " + shape.getClass());
-//                    drawingPanel.getDrawing().addShape(shape);
-//                    drawingPanel.redraw();
-//
-//                }, System.err::println);
-//
-//        disposables.add(getShapeDisposable);
     }
 
     private void initializeObjectOutputStream(Socket socket) {
@@ -118,34 +85,16 @@ public class Client {
         EventObservable.setIsClientActiveSubject(false);
     }
 
-    public Observable<Shape> getShapeObservable() {
-        return Observable.defer(() -> {
-            try {
-                ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-                return Observable.just((Shape) objectInputStream.readObject());
-            } catch (IOException | ClassNotFoundException e) {
-                return Observable.error(new RuntimeException(e));
-            }
-        }).subscribeOn(Schedulers.io());
-
-//        return Observable.just(socket)
-//                .subscribeOn(Schedulers.io())
-//                .map(Socket::getInputStream)
-//                .map(ObjectInputStream::new)
-//                .map(objectInputStream -> (Shape) objectInputStream.readObject());
-    }
-
     public void sendShape(Shape shape) {
         System.out.println("Sending to server...");
-        sentShape = shape;
 
         Disposable disposable = Observable.just(shape)
                 .subscribeOn(Schedulers.io())
-                .subscribe(shape1 -> {
+                .subscribe(newShape -> {
                     if (!socket.isClosed()) {
                         try {
-                            outputStream.writeObject(shape1);
-                            System.out.println("Client is sending shape: " + shape1.getClass().getName());
+                            outputStream.writeObject(newShape);
+                            System.out.println("Client is sending shape: " + newShape.getClass().getName());
                         } catch (IOException e) {
                             System.out.println("Server Disconnected");
                             stopClient();
@@ -157,21 +106,21 @@ public class Client {
         disposables.add(disposable);
     }
 
-    private boolean isSentShapeReceivedShape(Shape sentShape, Shape receivedShape) {
-        if (sentShape != null && receivedShape != null) {
-            if (sentShape.getClass().getName().equals(receivedShape.getClass().getName())) {
-                if (receivedShape instanceof Freehand) {
-                    return sentShape.getFreehandCoordinates().equals(receivedShape.getFreehandCoordinates())
-                            && sentShape.getColor().equals(receivedShape.getColor())
-                            && sentShape.getThickness() == receivedShape.getThickness();
-                }
-                return sentShape.getCoordinates().getX() == receivedShape.getCoordinates().getX()
-                        && sentShape.getCoordinates().getY() == receivedShape.getCoordinates().getY()
-                        && sentShape.getHeight() == receivedShape.getHeight()
-                        && sentShape.getColor().equals(receivedShape.getColor())
-                        && sentShape.getThickness() == receivedShape.getThickness();
-            }
-        }
-        return false;
-    }
+//    private boolean isSentShapeReceivedShape(Shape sentShape, Shape receivedShape) {
+//        if (sentShape != null && receivedShape != null) {
+//            if (sentShape.getClass().getName().equals(receivedShape.getClass().getName())) {
+//                if (receivedShape instanceof Freehand) {
+//                    return sentShape.getFreehandCoordinates().equals(receivedShape.getFreehandCoordinates())
+//                            && sentShape.getColor().equals(receivedShape.getColor())
+//                            && sentShape.getThickness() == receivedShape.getThickness();
+//                }
+//                return sentShape.getCoordinates().getX() == receivedShape.getCoordinates().getX()
+//                        && sentShape.getCoordinates().getY() == receivedShape.getCoordinates().getY()
+//                        && sentShape.getHeight() == receivedShape.getHeight()
+//                        && sentShape.getColor().equals(receivedShape.getColor())
+//                        && sentShape.getThickness() == receivedShape.getThickness();
+//            }
+//        }
+//        return false;
+//    }
 }

@@ -16,6 +16,7 @@ import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -26,20 +27,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
     private ServerSocket serverSocket;
-    private final ConcurrentHashMap<Socket, CompositeDisposable> clientDisposables;
     private boolean acceptConnection = true;
-    private List<Socket> clientSockets;
-    private Subject<Socket> clientConnectionss;
-    private Subject<Shape> shapeStream;
+    private final List<Socket> clientSockets;
+    private final Subject<Socket> clientConnections;
+    private final Subject<Shape> shapeStream;
     private final DrawingPanel drawingPanel;
-    private Map<Integer, Disposable> disposableMap;
-    private Map<Integer, Disposable> shapeDisposableMap;
+    private final Map<Integer, Disposable> disposableMap;
+    private final Map<Integer, Disposable> shapeDisposableMap;
 
     public Server(int serverPort, DrawingPanel drawingPanel) throws IOException {
         this.drawingPanel = drawingPanel;
-        clientDisposables = new ConcurrentHashMap<>();
         clientSockets = new ArrayList<>();
-        clientConnectionss = PublishSubject.create();
+        clientConnections = PublishSubject.create();
         shapeStream = ReplaySubject.create();
         disposableMap = new HashMap<>();
         shapeDisposableMap = new HashMap<>();
@@ -56,7 +55,7 @@ public class Server {
                 .subscribeOn(Schedulers.single())
                 .subscribe();
 
-        clientConnectionss
+        clientConnections
                 .doOnNext(s -> System.out.println("tcp connection accepted..."))
                 .subscribe(this::handleClient);
     }
@@ -76,22 +75,7 @@ public class Server {
             }
             emitter.onComplete();
         }).observeOn(Schedulers.io())
-                .subscribe(clientConnectionss);
-//        while (acceptConnection && !serverSocket.isClosed()) {
-//            Socket socket = null;
-//            try {
-//                socket = serverSocket.accept();
-//            } catch (IOException e) {
-//                if (!acceptConnection) {
-//                    break;
-//                }
-//
-//            }
-//
-//            Observable.<Socket>create(emitter -> emitter.onNext(socket))
-//                    .observeOn(Schedulers.io())
-//                    .subscribe(clientConnectionss);
-//        }
+                .subscribe(clientConnections);
     }
 
     private void handleClient(Socket clientSocket) {
@@ -111,15 +95,6 @@ public class Server {
                         } catch (IOException | ClassNotFoundException e) {
                             emitter.onError(new ConnectionError(clientSocket));
                         }
-
-
-//                        Object object = objectInputStream.readObject();
-//
-//                        if (object == null || clientSocket.isClosed()) {
-//                            emitter.onError(new ConnectionError(clientSocket));
-//                        } else {
-//                            emitter.onNext(object);
-//                        }
                     }
                 }))
                 .subscribeOn(Schedulers.io())
@@ -130,6 +105,11 @@ public class Server {
                 .doOnNext(shape -> {
                     System.out.println("Server received shape: " + shape.getClass().getName()
                             + "from client: " + clientSocket.getInetAddress());
+
+                    // Set client hashCode to the shape to prevent sending the shape back to client
+                    shape.setClientHashCode(clientSocket.hashCode());
+
+                    // Adding and drawing the shape to the server user
                     drawingPanel.getDrawing().addShape(shape);
                     drawingPanel.redraw();
                 })
@@ -143,7 +123,11 @@ public class Server {
                     System.out.println("Server is trying to send shape: " + shape + "to client: "
                             + clientSocket.getInetAddress());
 
-                    outputStream.writeObject(shape);
+                    // Check if client hashCode is 0 (the server user sent the shape) or if the shape is
+                    // connected to the client to prevent sending the shape back to the client.
+                    if (shape.getClientHashCode() == 0 || shape.getClientHashCode() != clientSocket.hashCode()) {
+                        outputStream.writeObject(shape);
+                    }
                     return true;
                 })
                 .subscribe();
@@ -176,8 +160,9 @@ public class Server {
             disposable.dispose();
         }
         try {
-            clientSocket.close();
-            System.out.println(clientSocket.isClosed());
+            if (!clientSocket.isClosed()) {
+                clientSocket.close();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -195,11 +180,6 @@ public class Server {
                 .map(ObjectOutputStream::new);
     }
 
-    public static String thread() {
-        Thread current = Thread.currentThread();
-        return "(Thread: " + current + " (id = " + current.getId() + "))";
-    }
-
     private void handleError(Throwable throwableError) {
         if (throwableError instanceof ConnectionError) {
             Socket socket = ((ConnectionError) throwableError).getSocket();
@@ -210,8 +190,8 @@ public class Server {
         }
     }
 
-    public class ConnectionError extends Throwable {
-
+    public static class ConnectionError extends Throwable {
+        @Serial
         private static final long serialVersionUID = 1L;
         private final Socket socket;
 

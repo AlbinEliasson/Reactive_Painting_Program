@@ -116,7 +116,7 @@ public class Menu extends JMenuBar {
 		EventObservable.getItemActionEventsObservable(connectToSever)
 				.subscribe(event -> {
 					try {
-						client = new Client(Constants.host, Constants.serverPort, frame);
+						client = new Client(Constants.host, Constants.serverPort, frame.getDrawingPanel());
 
 						clientDisposable = Observable.just(client)
 								.subscribeOn(Schedulers.single())

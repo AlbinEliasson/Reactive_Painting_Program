@@ -21,6 +21,7 @@ public abstract class Shape implements Drawable, Serializable {
     private final ArrayList<Point> freehandCoordinates = new ArrayList<>();
     private float thickness;
     private Color color;
+    private int clientHashCode = 0;
 
     /**
      * Simple getter for the shape point coordinates.
@@ -109,5 +110,13 @@ public abstract class Shape implements Drawable, Serializable {
      */
     public Color getColor() {
         return color;
+    }
+
+    public int getClientHashCode() {
+        return clientHashCode;
+    }
+
+    public void setClientHashCode(int clientHashCode) {
+        this.clientHashCode = clientHashCode;
     }
 }
