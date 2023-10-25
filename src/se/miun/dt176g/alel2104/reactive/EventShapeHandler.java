@@ -1,6 +1,8 @@
 package se.miun.dt176g.alel2104.reactive;
 
 import io.reactivex.rxjava3.core.Observable;
+import se.miun.dt176g.alel2104.reactive.connect.Client;
+import se.miun.dt176g.alel2104.reactive.connect.Server;
 import se.miun.dt176g.alel2104.reactive.gui.DrawingPanel;
 import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
 import se.miun.dt176g.alel2104.reactive.shapes.Line;
@@ -24,6 +26,10 @@ public class EventShapeHandler {
     private Shape currentShape;
     private float currentThickness;
     private Color currentColor;
+    private Server currentServer;
+    private Client currentClient;
+    private boolean isClientActive = false;
+    private boolean isServerActive = false;
 
     /**
      * Constructor which initialized the drawing panel,
@@ -37,6 +43,10 @@ public class EventShapeHandler {
         setShapeListener();
         setThicknessListener();
         setColorListener();
+        setServerListener();
+        setClientListener();
+        setIsClientActiveListener();
+        setIsServerActiveListener();
     }
 
     /**
@@ -49,8 +59,10 @@ public class EventShapeHandler {
                         currentShape = resetShape(currentShape);
                         drawingPanel.getDrawing().addShape(currentShape);
                     } else if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED) {
-                        if (drawingPanel.getClient() != null) {
-                            drawingPanel.getClient().sendShape(currentShape);
+                        if (currentClient != null && isClientActive) {
+                            currentClient.sendShape(currentShape);
+                        } else if (currentServer != null && isServerActive) {
+                            currentServer.sendServerShape(currentShape);
                         }
                     }
                 })
@@ -169,6 +181,26 @@ public class EventShapeHandler {
                 .subscribe(this::setCurrentColor);
     }
 
+    private void setServerListener() {
+        EventObservable.getCurrentServer()
+                .subscribe(this::setCurrentServer);
+    }
+
+    private void setClientListener() {
+        EventObservable.getCurrentClient()
+                .subscribe(this::setCurrentClient);
+    }
+
+    private void setIsClientActiveListener() {
+        EventObservable.getIsClientActiveSubject()
+                .subscribe(this::setIsClientActive);
+    }
+
+    private void setIsServerActiveListener() {
+        EventObservable.getIsServerActiveSubject()
+                .subscribe(this::setIsServerActive);
+    }
+
     /**
      * Method for setting the current shape.
      * @param shape the current shape.
@@ -191,6 +223,22 @@ public class EventShapeHandler {
      */
     private void setCurrentColor(Color currentColor) {
         this.currentColor = currentColor;
+    }
+
+    private void setCurrentServer(Server server) {
+        this.currentServer = server;
+    }
+
+    private void setCurrentClient(Client client) {
+        this.currentClient = client;
+    }
+
+    private void setIsClientActive(boolean active) {
+        this.isClientActive = active;
+    }
+
+    private void setIsServerActive(boolean active) {
+        this.isServerActive = active;
     }
 }
 

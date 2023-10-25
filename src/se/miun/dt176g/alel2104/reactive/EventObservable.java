@@ -1,11 +1,17 @@
 package se.miun.dt176g.alel2104.reactive;
 
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
+import se.miun.dt176g.alel2104.reactive.connect.Client;
+import se.miun.dt176g.alel2104.reactive.connect.Server;
 import se.miun.dt176g.alel2104.reactive.gui.DrawingPanel;
 
+import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -22,6 +28,10 @@ public class EventObservable {
     private static final PublishSubject<Shape> currentShapeSubject = PublishSubject.create();
     private static final PublishSubject<Long> currentThicknessSubject = PublishSubject.create();
     private static final PublishSubject<Color> currentColorSubject = PublishSubject.create();
+    private static final PublishSubject<Server> currentServerSubject = PublishSubject.create();
+    private static final PublishSubject<Client> currentClientSubject = PublishSubject.create();
+    private static final PublishSubject<Boolean> isClientActiveSubject = PublishSubject.create();
+    private static final PublishSubject<Boolean> isServerActiveSubject = PublishSubject.create();
 
     /**
      * Method for setting a mouse listener and returning an observable of the events.
@@ -66,6 +76,42 @@ public class EventObservable {
      */
     public static Observable<ItemEvent> getItemEventsObservable(JRadioButtonMenuItem menuItem) {
         return Observable.create(emitter -> menuItem.addItemListener(emitter::onNext));
+    }
+
+    public static Observable<ActionEvent> getItemActionEventsObservable(JMenuItem menuItem) {
+        return Observable.create(emitter -> menuItem.addActionListener(emitter::onNext));
+    }
+
+    public static Observable<Server> getCurrentServer() {
+        return currentServerSubject;
+    }
+
+    public static void setCurrentServerSubject(Server server) {
+        currentServerSubject.onNext(server);
+    }
+
+    public static Observable<Client> getCurrentClient() {
+        return currentClientSubject;
+    }
+
+    public static void setCurrentClientSubject(Client client) {
+        currentClientSubject.onNext(client);
+    }
+
+    public static Observable<Boolean> getIsClientActiveSubject() {
+        return isClientActiveSubject;
+    }
+
+    public static void setIsClientActiveSubject(boolean active) {
+        isClientActiveSubject.onNext(active);
+    }
+
+    public static Observable<Boolean> getIsServerActiveSubject() {
+        return isServerActiveSubject;
+    }
+
+    public static void setIsServerActiveSubject(boolean active) {
+        isServerActiveSubject.onNext(active);
     }
 
     /**

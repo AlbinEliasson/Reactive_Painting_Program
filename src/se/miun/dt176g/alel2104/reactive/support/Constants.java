@@ -16,4 +16,7 @@ public interface Constants {
     int defaultWindowHeight = 900;
     int serverPort = 12345;
     String host = "localhost";
+    String CONNECT_TO_SERVER_ERROR_MESSAGE = "Could not connect to server: ";
+    String HOST_SERVER_ERROR_MESSAGE = "Could not host server: ";
+    String CONNECTION_LOST_MESSAGE = "Connection lost to server!";
 }

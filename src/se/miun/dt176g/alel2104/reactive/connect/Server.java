@@ -8,7 +8,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import io.reactivex.rxjava3.subjects.Subject;
+import se.miun.dt176g.alel2104.reactive.EventObservable;
 import se.miun.dt176g.alel2104.reactive.Shape;
+import se.miun.dt176g.alel2104.reactive.gui.DrawingPanel;
+import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,33 +19,38 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
-    private final ServerSocket serverSocket;
+    private ServerSocket serverSocket;
     private final ConcurrentHashMap<Socket, CompositeDisposable> clientDisposables;
     private boolean acceptConnection = true;
-    private Observable<Socket> clientConnections;
     private List<Socket> clientSockets;
     private Subject<Socket> clientConnectionss;
     private Subject<Shape> shapeStream;
+    private final DrawingPanel drawingPanel;
+    private Map<Integer, Disposable> disposableMap;
+    private Map<Integer, Disposable> shapeDisposableMap;
 
-    public Server(int serverPort) {
+    public Server(int serverPort, DrawingPanel drawingPanel) throws IOException {
+        this.drawingPanel = drawingPanel;
         clientDisposables = new ConcurrentHashMap<>();
         clientSockets = new ArrayList<>();
         clientConnectionss = PublishSubject.create();
         shapeStream = ReplaySubject.create();
+        disposableMap = new HashMap<>();
+        shapeDisposableMap = new HashMap<>();
 
-        try {
-            serverSocket = new ServerSocket(serverPort);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        serverSocket = new ServerSocket(serverPort);
     }
 
     public void startServer() {
         System.out.println("Starting server and waiting for client connections!");
+
+        EventObservable.setIsServerActiveSubject(true);
 
         Completable.create(emitter -> getClientConnection())
                 .subscribeOn(Schedulers.single())
@@ -51,33 +59,39 @@ public class Server {
         clientConnectionss
                 .doOnNext(s -> System.out.println("tcp connection accepted..."))
                 .subscribe(this::handleClient);
-
-//        clientConnections = getClientConnection();
-//
-//        clientConnections.subscribeOn(Schedulers.io())
-//                .subscribe(this::handleClient, e -> {
-//                    System.err.println("Error accepting client connection: " + e.getMessage());
-//                    //closeServer();
-//                }, () -> {
-////                    System.out.println("No clients connected, closing server");
-////                    closeServer();
-//                });
     }
 
     private void getClientConnection() {
         Observable.<Socket>create(emitter -> {
-            while (!emitter.isDisposed()) {
+            while (acceptConnection) {
                 try {
-                    emitter.onNext(serverSocket.accept());
+                    Socket clientSocket = serverSocket.accept();
+                    emitter.onNext(clientSocket);
                 } catch (IOException e) {
-                    if (!emitter.isDisposed()) {
-                        emitter.onError(e);
+                    if (!acceptConnection) {
+                        break;
                     }
-                    break;
+                    emitter.onError(e);
                 }
             }
+            emitter.onComplete();
         }).observeOn(Schedulers.io())
                 .subscribe(clientConnectionss);
+//        while (acceptConnection && !serverSocket.isClosed()) {
+//            Socket socket = null;
+//            try {
+//                socket = serverSocket.accept();
+//            } catch (IOException e) {
+//                if (!acceptConnection) {
+//                    break;
+//                }
+//
+//            }
+//
+//            Observable.<Socket>create(emitter -> emitter.onNext(socket))
+//                    .observeOn(Schedulers.io())
+//                    .subscribe(clientConnectionss);
+//        }
     }
 
     private void handleClient(Socket clientSocket) {
@@ -85,22 +99,46 @@ public class Server {
 
         if (!clientSockets.contains(clientSocket)) {
             clientSockets.add(clientSocket);
+            System.out.println("Amount of connected clients: " + clientSockets.size());
         }
         Observable.create(emitter -> getObjectInputStream(clientSocket)
+                        .doOnSubscribe(disposable -> disposableMap.put(clientSocket.hashCode(), disposable))
+                        .doOnError(this::handleError)
                 .subscribe(objectInputStream -> {
                     while (!emitter.isDisposed()) {
-                        // Add if-statement to check if socket is closed
-                        emitter.onNext(objectInputStream.readObject());
+                        try {
+                            emitter.onNext(objectInputStream.readObject());
+                        } catch (IOException | ClassNotFoundException e) {
+                            emitter.onError(new ConnectionError(clientSocket));
+                        }
+
+
+//                        Object object = objectInputStream.readObject();
+//
+//                        if (object == null || clientSocket.isClosed()) {
+//                            emitter.onError(new ConnectionError(clientSocket));
+//                        } else {
+//                            emitter.onNext(object);
+//                        }
                     }
-                })).subscribeOn(Schedulers.io())
+                }))
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe(disposable -> disposableMap.put(clientSocket.hashCode(), disposable))
+                .doOnError(this::handleError)
+                .onErrorComplete(err -> err instanceof ConnectionError)
                 .map(o -> (Shape) o)
-                .doOnNext(shape -> System.out.println("Server received shape: " + shape.getClass().getName()
-                        + "from client: " + clientSocket.getInetAddress()))
+                .doOnNext(shape -> {
+                    System.out.println("Server received shape: " + shape.getClass().getName()
+                            + "from client: " + clientSocket.getInetAddress());
+                    drawingPanel.getDrawing().addShape(shape);
+                    drawingPanel.redraw();
+                })
                 .subscribe(shapeStream::onNext
                         , err -> System.err.println(err.getMessage())
                         , () -> System.out.println("Socket closed"));
 
         shapeStream.subscribeOn(Schedulers.io())
+                .doOnSubscribe(disposable -> shapeDisposableMap.put(clientSocket.hashCode(), disposable))
                 .withLatestFrom(getObjectOutputStream(clientSocket), (shape, outputStream) -> {
                     System.out.println("Server is trying to send shape: " + shape + "to client: "
                             + clientSocket.getInetAddress());
@@ -109,68 +147,37 @@ public class Server {
                     return true;
                 })
                 .subscribe();
+    }
 
-//        CompositeDisposable disposables = new CompositeDisposable();
-//
-//        Disposable disposable = getShapeObservable(clientSocket)
-//                .observeOn(Schedulers.io())
-//                .subscribe(shape -> {
-//                    System.out.println("Server received shape: " + shape.getClass());
-//                    clientSockets.forEach(socket -> {
-////                        if (!socket.equals(clientSocket)) {
-////                            sendClientShape(shape, socket);
-////                        }
-//                        sendClientShape(shape, socket);
-//                    });
-//
-////                    clientDisposables.forEach((socket, compositeDisposable) -> {
-////                        if (!socket.equals(clientSocket)) {
-////                            System.out.println("Server is sending shape: " + shape.getClass() + "to client: "
-////                                    + clientSocket.getInetAddress());
-////
-////                            sendClientShape(shape, socket);
-////                        }
-////                    });
-//                        },
-//                        e -> {
-//                    System.out.println("Error receiving shape: " + e.getMessage());
-//                    //disposeClientResources(clientSocket);
-//                }, () -> {
-//
-//                        });
-//        disposables.add(disposable);
-//        clientDisposables.put(clientSocket, disposables);
+    public void sendServerShape(Shape sentShape) {
+        Observable.just(sentShape)
+                .subscribeOn(Schedulers.io())
+                .subscribe(shapeStream::onNext);
     }
 
     public void closeServer() {
         System.out.println("Shutting down server!");
-        boolean isClientsConnected = !clientDisposables.isEmpty();
-
-        if (isClientsConnected) {
-            clientDisposables.forEach((socket, compositeDisposable) -> {
-                disposeClientResources(socket);
-                compositeDisposable.clear();
-            });
-            clientDisposables.clear();
-        }
+        acceptConnection = false;
 
         try {
             serverSocket.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        if (isClientsConnected) {
-            Schedulers.shutdown();
-        }
+
+        clientSockets.forEach(this::disposeClientResources);
+        clientSockets.clear();
+        EventObservable.setIsServerActiveSubject(false);
     }
 
     private void disposeClientResources(Socket clientSocket) {
-        CompositeDisposable disposable = clientDisposables.remove(clientSocket);
+        Disposable disposable = disposableMap.get(clientSocket.hashCode());
         if (disposable != null) {
-            disposable.clear();
+            disposable.dispose();
         }
         try {
             clientSocket.close();
+            System.out.println(clientSocket.isClosed());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -178,67 +185,42 @@ public class Server {
 
     private Observable<ObjectInputStream> getObjectInputStream(Socket socket) {
         return Observable.just(socket)
-                .subscribeOn(Schedulers.io())
                 .map(Socket::getInputStream)
                 .map(ObjectInputStream::new);
     }
 
     private Observable<ObjectOutputStream> getObjectOutputStream(Socket socket) {
         return Observable.just(socket)
-                .subscribeOn(Schedulers.io())
                 .map(Socket::getOutputStream)
                 .map(ObjectOutputStream::new);
-    }
-
-    private Observable<Shape> getShapeObservable(Socket clientSocket) {
-        return Observable.just(clientSocket)
-                .subscribeOn(Schedulers.io())
-                .map(Socket::getInputStream)
-                .map(ObjectInputStream::new)
-                .map(objectInputStream -> (Shape) objectInputStream.readObject());
-//        return Observable.create(emitter -> {
-//            try {
-//                System.out.println("Trying to get shape from client: " + clientSocket.getInetAddress());
-//                ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
-//               // while (!emitter.isDisposed()) {
-//                    Object receivedObject = objectInputStream.readObject();
-//                    if (receivedObject instanceof Shape) {
-//                        emitter.onNext((Shape) receivedObject);
-//                    }
-//               // }
-//            } catch (IOException | ClassNotFoundException e) {
-//                emitter.onError(new RuntimeException(e));
-//            }
-//        });
-//        return Observable.defer(() -> {
-//            try {
-//                System.out.println("Trying to get shape from client: " + clientSocket.getInetAddress());
-//                ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
-//                return Observable.just((Shape) objectInputStream.readObject());
-//            } catch (IOException | ClassNotFoundException e) {
-//                return Observable.error(new RuntimeException(e));
-//            }
-//        }).subscribeOn(Schedulers.io());
-    }
-
-    private void sendClientShape(Shape shape, Socket clientSocket) {
-        Disposable clientDisposable = Observable.defer(() -> {
-            try {
-                System.out.println("Server is trying to send shape: " + shape.getClass()
-                        + " to client: " + clientSocket.getInetAddress());
-                ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-                outputStream.writeObject(shape);
-                return Observable.just(shape);
-            } catch (IOException e) {
-                return Observable.error(new RuntimeException(e));
-            }
-        }).subscribeOn(Schedulers.io()).subscribe();
-
-        //clientDisposables.get(clientSocket).add(clientDisposable);
     }
 
     public static String thread() {
         Thread current = Thread.currentThread();
         return "(Thread: " + current + " (id = " + current.getId() + "))";
+    }
+
+    private void handleError(Throwable throwableError) {
+        if (throwableError instanceof ConnectionError) {
+            Socket socket = ((ConnectionError) throwableError).getSocket();
+            disposableMap.get(socket.hashCode()).dispose();
+            disposableMap.remove(socket.hashCode());
+            shapeDisposableMap.get(socket.hashCode()).dispose();
+            shapeDisposableMap.remove(socket.hashCode());
+        }
+    }
+
+    public class ConnectionError extends Throwable {
+
+        private static final long serialVersionUID = 1L;
+        private final Socket socket;
+
+        public ConnectionError(Socket socket) {
+            this.socket = socket;
+        }
+
+        public Socket getSocket() {
+            return socket;
+        }
     }
 }

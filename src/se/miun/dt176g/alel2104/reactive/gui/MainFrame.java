@@ -18,6 +18,7 @@ import javax.swing.*;
 public class MainFrame extends JFrame {
 	private String header;
 	private DrawingPanel drawingPanel;
+	private Menu menu;
 
 	/**
 	 * Constructor to set window preferences and adding swing components.
@@ -43,8 +44,8 @@ public class MainFrame extends JFrame {
 		drawingPanel.setBounds(0, 0, getWidth(), getHeight());
 		this.getContentPane().add(drawingPanel, BorderLayout.CENTER);
 
-		this.setJMenuBar(new Menu(this));
-
+		menu = new Menu(this);
+		this.setJMenuBar(menu);
 	}
 
 	/**
@@ -53,5 +54,9 @@ public class MainFrame extends JFrame {
 	 */
 	public DrawingPanel getDrawingPanel() {
 		return drawingPanel;
+	}
+
+	public Menu getMenu() {
+		return menu;
 	}
 }

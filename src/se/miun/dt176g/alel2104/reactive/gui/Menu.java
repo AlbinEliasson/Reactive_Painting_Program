@@ -1,5 +1,9 @@
 package se.miun.dt176g.alel2104.reactive.gui;
 
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import se.miun.dt176g.alel2104.reactive.EventObservable;
 import se.miun.dt176g.alel2104.reactive.connect.Client;
 import se.miun.dt176g.alel2104.reactive.connect.Server;
@@ -19,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
+import java.io.IOException;
 
 /**
  * <h1>Menu</h1> 
@@ -32,27 +37,36 @@ public class Menu extends JMenuBar {
 	private JLabel currentShapeLabel;
 	private Server server;
 	private Client client;
+	private MainFrame frame;
+	private Disposable clientDisposable;
+	private Disposable serverDisposable;
+	private JMenuItem hostServer;
+	private JMenuItem disconnectServer;
+	private JMenuItem disconnectFromServer;
+	private JMenuItem connectToSever;
 
 	/**
 	 * Constructor to initialize the menu swing components.
 	 * @param frame the window frame.
 	 */
 	public Menu(MainFrame frame) {
-		init(frame);
+		this.frame = frame;
+		init();
 	}
 
 	/**
-	 * Method for initializing all the menu swing components.
-	 * @param frame the window frame.
+	 * Method for initializing all the menu swing components and server/client active listeners.
 	 */
-	private void init(MainFrame frame) {
+	private void init() {
 		currentShapeLabel = new JLabel();
 		currentShapeLabel.setForeground(Color.DARK_GRAY);
 
-		initOptionMenu(frame);
+		initOptionMenu();
 		initDrawMenu();
 		initThicknessMenu();
 		initColorMenu();
+		isClientActiveListener();
+		isServerActiveListener();
 
 		this.add(Box.createHorizontalGlue());
 		this.add(currentShapeLabel);
@@ -60,49 +74,72 @@ public class Menu extends JMenuBar {
 
 	/**
 	 * Method for initializing the general option menu.
-	 * @param frame the window frame.
 	 */
-	private void initOptionMenu(MainFrame frame) {
+	private void initOptionMenu() {
 		JMenu optionsMenu = new JMenu("General options");
 
 		JMenuItem clearCanvas = new JMenuItem("Clear canvas");
-		clearCanvas.addActionListener(e -> clearCanvasEvent(frame));
+		clearCanvas.addActionListener(e -> clearCanvasEvent());
 
-		JMenuItem disconnectServer = new JMenuItem("Stop hosting server");
+		hostServer = new JMenuItem("Host server");
+		disconnectServer = new JMenuItem("Stop hosting server");
+		disconnectFromServer = new JMenuItem("Disconnect from server");
+		connectToSever = new JMenuItem("Connect to server");
+
+		EventObservable.getItemActionEventsObservable(hostServer)
+				.subscribe(event -> {
+					try {
+						server = new Server(Constants.serverPort, frame.getDrawingPanel());
+						serverDisposable = Observable.just(server)
+								.subscribeOn(Schedulers.single())
+								.doOnNext(Server::startServer)
+								.doOnDispose(server::closeServer)
+								.subscribe(newServer -> {
+									EventObservable.setCurrentServerSubject(newServer);
+									disconnectServer.setEnabled(true);
+									hostServer.setEnabled(false);
+									connectToSever.setEnabled(false);
+								});
+					} catch (IOException e) {
+						System.out.println("Could not host server! Error: " + e.getMessage());
+						connectServerEventError(frame, e, Constants.HOST_SERVER_ERROR_MESSAGE);
+                    }
+                });
+
 		disconnectServer.setEnabled(false);
-		disconnectServer.addActionListener(e -> {
-			if (server != null) {
-				server.closeServer();
-				disconnectServer.setEnabled(false);
-			}
-		});
+		EventObservable.getItemActionEventsObservable(disconnectServer)
+				.subscribe(event -> {
+					server.closeServer();
+					server = null;
+				});
 
-		JMenuItem hostServer = new JMenuItem("Host server");
-		hostServer.addActionListener(e -> {
-			System.out.println("Hosting server");
-			if (server == null) {
-				server = new Server(Constants.serverPort);
-				server.startServer();
-				disconnectServer.setEnabled(true);
-			}
-		});
+		EventObservable.getItemActionEventsObservable(connectToSever)
+				.subscribe(event -> {
+					try {
+						client = new Client(Constants.host, Constants.serverPort, frame);
 
-		JMenuItem disconnectFromServer = new JMenuItem("Disconnect from server");
+						clientDisposable = Observable.just(client)
+								.subscribeOn(Schedulers.single())
+								.doOnNext(Client::startClient)
+								.doOnDispose(client::stopClient)
+								.subscribe(newClient -> {
+									EventObservable.setCurrentClientSubject(newClient);
+									hostServer.setEnabled(false);
+									connectToSever.setEnabled(false);
+									disconnectFromServer.setEnabled(true);
+								});
+					} catch (IOException e) {
+						System.out.println("Could not connect to server! Error: " + e.getMessage());
+						connectServerEventError(frame, e, Constants.CONNECT_TO_SERVER_ERROR_MESSAGE);
+                    }
+				});
+
 		disconnectFromServer.setEnabled(false);
-		disconnectFromServer.addActionListener(e -> {
-			if (client != null) {
-				client.stopClient();
-			}
-		});
-
-		JMenuItem connectToSever = new JMenuItem("Connect to server");
-		connectToSever.addActionListener(e -> {
-			System.out.println("Connect to server");
-			client = new Client(Constants.host, Constants.serverPort, frame.getDrawingPanel());
-			client.startClient();
-			frame.getDrawingPanel().setClient(client);
-			disconnectFromServer.setEnabled(true);
-		});
+		EventObservable.getItemActionEventsObservable(disconnectFromServer)
+				.subscribe(event -> {
+					client.stopClient();
+					client = null;
+				});
 
 		optionsMenu.add(hostServer);
 		optionsMenu.add(disconnectServer);
@@ -110,6 +147,43 @@ public class Menu extends JMenuBar {
 		optionsMenu.add(disconnectFromServer);
 		optionsMenu.add(clearCanvas);
 		this.add(optionsMenu);
+	}
+
+	private void disconnectFromServerEvent() {
+		if (clientDisposable != null) {
+			clientDisposable.dispose();
+		}
+		disconnectFromServer.setEnabled(false);
+		hostServer.setEnabled(true);
+		connectToSever.setEnabled(true);
+		connectServerEventError(frame, null, Constants.CONNECTION_LOST_MESSAGE);
+	}
+
+	private void disconnectServerEvent() {
+		if (serverDisposable != null) {
+			serverDisposable.dispose();
+		}
+		disconnectServer.setEnabled(false);
+		hostServer.setEnabled(true);
+		connectToSever.setEnabled(true);
+	}
+
+	private void isClientActiveListener() {
+		EventObservable.getIsClientActiveSubject()
+				.subscribe(active -> {
+					if (!active) {
+						disconnectFromServerEvent();
+					}
+				});
+	}
+
+	private void isServerActiveListener() {
+		EventObservable.getIsServerActiveSubject()
+				.subscribe(active -> {
+					if (!active) {
+						disconnectServerEvent();
+					}
+				});
 	}
 
 	/**
@@ -254,14 +328,21 @@ public class Menu extends JMenuBar {
 
 	/**
 	 * Method for creating and executing a clear canvas event with an option dialog.
-	 * @param frame the window frame.
 	 */
-	private void clearCanvasEvent(MainFrame frame) {
+	private void clearCanvasEvent() {
 		int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to clear the canvas?",
 				"Reactive Paint" ,JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
 		if (dialogResult == JOptionPane.YES_OPTION) {
 			frame.getDrawingPanel().clearCanvas();
+		}
+	}
+
+	public void connectServerEventError(MainFrame frame, IOException e, String message) {
+		if (e != null) {
+			JOptionPane.showMessageDialog(frame, message + e.getMessage());
+		} else {
+			JOptionPane.showMessageDialog(frame, message);
 		}
 	}
 

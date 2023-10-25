@@ -1,7 +1,7 @@
 package se.miun.dt176g.alel2104.reactive;
 
 import java.awt.Graphics;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * <h1>Drawing</h1> 
@@ -12,13 +12,13 @@ import java.util.ArrayList;
  * @since   2023-10-07
  */
 public class Drawing implements Drawable {
-	private final ArrayList<Shape> shapes;
+	private final CopyOnWriteArrayList<Shape> shapes;
 
 	/**
 	 * Constructor to initialize the shape container.
 	 */
 	public Drawing() {
-		shapes = new ArrayList<>();
+		shapes = new CopyOnWriteArrayList<>();
 	}
 	
 	/**
@@ -27,6 +27,7 @@ public class Drawing implements Drawable {
 	 */
 	public void addShape(Shape s) {
 		shapes.add(s);
+		System.out.println("Amount of shapes: " + shapes.size());
 	}
 
 	/**
@@ -43,8 +44,5 @@ public class Drawing implements Drawable {
 	@Override
 	public void draw(Graphics g) {
 		shapes.forEach(shape -> shape.draw(g));
-		//System.out.println(shapes.size() + " AMOUNT OF SHAPES");
-		// iterate over all shapes and draw them using the draw-method found in
-		// each concrete subclass.
 	}
 }
