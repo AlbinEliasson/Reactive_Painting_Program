@@ -129,12 +129,11 @@ public class Server {
                 .doOnSubscribe(disposable -> shapeDisposableMap.put(clientSocket.hashCode(), disposable))
                 .withLatestFrom(getObjectOutputStream(clientSocket), (object, outputStream) -> {
                     if (object instanceof Shape shape) {
-                        System.out.println("Server is trying to send shape: " + shape + "to client: "
-                                + clientSocket.getInetAddress());
-
                         // Check if client hashCode is 0 (the server user sent the shape) or if the shape is
                         // connected to the client to prevent sending the shape back to the client.
                         if (shape.getClientHashCode() == 0 || shape.getClientHashCode() != clientSocket.hashCode()) {
+                            System.out.println("Server is trying to send shape: " + shape + "to client: "
+                                    + clientSocket.getInetAddress());
                             outputStream.writeObject(shape);
                         }
                     } else if (object instanceof Event event) {

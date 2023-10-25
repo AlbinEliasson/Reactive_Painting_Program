@@ -16,6 +16,9 @@ public interface Constants {
     int DEFAULT_WINDOW_HEIGHT = 900;
     int SERVER_PORT = 12345;
     String HOST = "localhost";
+    String HEADER = "Reactive Paint";
+    String CLEAR_CANVAS_MESSAGE = "Are you sure you want to clear the canvas?\n" +
+            "If you are connected to/or hosting a server it will clear all canvases!";
     String CONNECT_TO_SERVER_ERROR_MESSAGE = "Could not connect to server: ";
     String HOST_SERVER_ERROR_MESSAGE = "Could not host server: ";
     String CONNECTION_LOST_MESSAGE = "Connection lost to server!";

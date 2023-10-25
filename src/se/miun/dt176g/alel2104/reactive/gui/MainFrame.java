@@ -32,7 +32,7 @@ public class MainFrame extends JFrame {
 		// Makes sure the window starts at the center of the screen
 		this.setLocationRelativeTo(null);
 
-		this.header = "Reactive Paint";
+		this.header = Constants.HEADER;
 		this.setTitle(header);
 
 		// Changes layout from default to BorderLayout

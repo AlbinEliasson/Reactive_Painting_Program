@@ -87,10 +87,12 @@ public class Menu extends JMenuBar {
 
 		EventObservable.getItemActionEventsObservable(clearCanvas)
 				.subscribe(event -> {
-					if (client == null && server == null) {
-						clearCanvasEvent();
-					} else {
-						EventObservable.setCurrentEventSubject(new Event(Constants.CLEAR_CANVAS_EVENT));
+					if (shouldClearCanvas()) {
+						if (client == null && server == null) {
+							clearCanvasEvent();
+						} else {
+							EventObservable.setCurrentEventSubject(new Event(Constants.CLEAR_CANVAS_EVENT));
+						}
 					}
 				});
 
@@ -110,7 +112,7 @@ public class Menu extends JMenuBar {
 								});
 					} catch (IOException e) {
 						System.out.println("Could not host server! Error: " + e.getMessage());
-						connectServerEventError(frame, e, Constants.HOST_SERVER_ERROR_MESSAGE);
+						connectServerEventError(e, Constants.HOST_SERVER_ERROR_MESSAGE);
                     }
                 });
 
@@ -135,7 +137,7 @@ public class Menu extends JMenuBar {
 								});
 					} catch (IOException e) {
 						System.out.println("Could not connect to server! Error: " + e.getMessage());
-						connectServerEventError(frame, e, Constants.CONNECT_TO_SERVER_ERROR_MESSAGE);
+						connectServerEventError(e, Constants.CONNECT_TO_SERVER_ERROR_MESSAGE);
                     }
 				});
 
@@ -159,7 +161,7 @@ public class Menu extends JMenuBar {
 		disconnectFromServer.setEnabled(false);
 		hostServer.setEnabled(true);
 		connectToSever.setEnabled(true);
-		connectServerEventError(frame, null, Constants.CONNECTION_LOST_MESSAGE);
+		connectServerEventError(null, Constants.CONNECTION_LOST_MESSAGE);
 	}
 
 	private void disconnectServerEvent() {
@@ -330,6 +332,13 @@ public class Menu extends JMenuBar {
 		this.add(colorMenu);
 	}
 
+	private boolean shouldClearCanvas() {
+		int dialogResult = JOptionPane.showConfirmDialog(
+				frame, Constants.CLEAR_CANVAS_MESSAGE, Constants.HEADER, JOptionPane.YES_NO_OPTION);
+
+        return dialogResult == JOptionPane.YES_OPTION;
+	}
+
 	/**
 	 * Method for creating and executing a clear canvas event with an option dialog.
 	 */
@@ -337,7 +346,7 @@ public class Menu extends JMenuBar {
 		frame.getDrawingPanel().clearCanvas();
 	}
 
-	public void connectServerEventError(MainFrame frame, IOException e, String message) {
+	public void connectServerEventError(IOException e, String message) {
 		if (e != null) {
 			JOptionPane.showMessageDialog(frame, message + e.getMessage());
 		} else {
