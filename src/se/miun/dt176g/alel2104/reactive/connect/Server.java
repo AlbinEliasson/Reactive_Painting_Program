@@ -48,7 +48,7 @@ public class Server {
      * @param frame the main frame.
      * @throws IOException IOException.
      */
-    public Server(int serverPort, MainFrame frame) throws IOException {
+    public Server(final int serverPort, final MainFrame frame) throws IOException {
         this.frame = frame;
         clientSockets = new ArrayList<>();
         clientConnections = PublishSubject.create();
@@ -103,7 +103,7 @@ public class Server {
      * Method for handling the clients by listening for/sending data to/from client sockets.
      * @param clientSocket the client socket.
      */
-    private void handleClient(Socket clientSocket) {
+    private void handleClient(final Socket clientSocket) {
         System.out.println("Client connected with IP: " + clientSocket.getInetAddress());
 
         if (!clientSockets.contains(clientSocket)) {
@@ -147,9 +147,9 @@ public class Server {
                         handleEvent(event);
                     }
                 })
-                .subscribe(objectStream::onNext
-                        , err -> System.err.println(err.getMessage())
-                        , () -> System.out.println("Socket closed"));
+                .subscribe(objectStream::onNext,
+                        err -> System.err.println(err.getMessage()),
+                        () -> System.out.println("Socket closed"));
 
         // Subject stream which sends the received objects to clients
         objectStream.subscribeOn(Schedulers.io())
@@ -177,7 +177,7 @@ public class Server {
      * Method for the server user to send objects to clients connected.
      * @param object the object to be sent.
      */
-    public void sendServerObject(Object object) {
+    public void sendServerObject(final Object object) {
         Observable.just(object)
                 .subscribeOn(Schedulers.io())
                 .subscribe(objectStream::onNext);
@@ -207,7 +207,7 @@ public class Server {
      * Method for disposing resources and closing client sockets.
      * @param clientSocket the client socket.
      */
-    private void disposeClientResources(Socket clientSocket) {
+    private void disposeClientResources(final Socket clientSocket) {
         Disposable disposable = disposableMap.get(clientSocket.hashCode());
         if (disposable != null) {
             disposable.dispose();
@@ -226,7 +226,7 @@ public class Server {
      * @param socket the client socket.
      * @return an observable of the ObjectInputStream.
      */
-    private Observable<ObjectInputStream> getObjectInputStream(Socket socket) {
+    private Observable<ObjectInputStream> getObjectInputStream(final Socket socket) {
         return Observable.just(socket)
                 .map(Socket::getInputStream)
                 .map(ObjectInputStream::new);
@@ -237,7 +237,7 @@ public class Server {
      * @param socket the client socket.
      * @return an observable of the ObjectOutputStream.
      */
-    private Observable<ObjectOutputStream> getObjectOutputStream(Socket socket) {
+    private Observable<ObjectOutputStream> getObjectOutputStream(final Socket socket) {
         return Observable.just(socket)
                 .map(Socket::getOutputStream)
                 .map(ObjectOutputStream::new);
@@ -247,7 +247,7 @@ public class Server {
      * Method for handling client connection errors by disposing the client resources.
      * @param throwableError throwable error.
      */
-    private void handleError(Throwable throwableError) {
+    private void handleError(final Throwable throwableError) {
         if (throwableError instanceof ConnectionError) {
             Socket socket = ((ConnectionError) throwableError).getSocket();
             disposableMap.get(socket.hashCode()).dispose();
@@ -272,7 +272,7 @@ public class Server {
      * Method for handling and executing the event.
      * @param event the event object.
      */
-    private void handleEvent(Event event) {
+    private void handleEvent(final Event event) {
         if (Objects.equals(event.getCurrentEvent(), Constants.CLEAR_CANVAS_EVENT)) {
             event.clearCanvasEvent(frame.getMenu());
         }
@@ -290,7 +290,7 @@ public class Server {
          * Constructor to initialize the client socket that had a connection error.
          * @param socket the client socket.
          */
-        public ConnectionError(Socket socket) {
+        public ConnectionError(final Socket socket) {
             this.socket = socket;
         }
 

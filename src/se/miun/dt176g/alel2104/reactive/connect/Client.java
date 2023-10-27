@@ -36,7 +36,7 @@ public class Client {
      * @param frame the main frame.
      * @throws IOException IOException.
      */
-    public Client(String host, int port, MainFrame frame) throws IOException {
+    public Client(final String host, final int port, final MainFrame frame) throws IOException {
         this.frame = frame;
         disposables = new CompositeDisposable();
 
@@ -86,7 +86,7 @@ public class Client {
      * Method for initializing an ObjectOutputStream from the provided sockets OutPutStream.
      * @param socket the client socket.
      */
-    private void initializeObjectOutputStream(Socket socket) {
+    private void initializeObjectOutputStream(final Socket socket) {
         outputStream = Observable.just(socket)
                 .subscribeOn(Schedulers.io())
                 .map(Socket::getOutputStream)
@@ -99,7 +99,7 @@ public class Client {
      * @param socket the client socket.
      * @return an observable of the ObjectInputStream.
      */
-    private Observable<ObjectInputStream> getObjectInputStream(Socket socket) {
+    private Observable<ObjectInputStream> getObjectInputStream(final Socket socket) {
         return Observable.just(socket)
                 .subscribeOn(Schedulers.io())
                 .map(Socket::getInputStream)
@@ -126,7 +126,7 @@ public class Client {
      * Method for sending objects through the socket.
      * @param object the object to be sent.
      */
-    public void sendObject(Object object) {
+    public void sendObject(final Object object) {
         System.out.println("Sending to server...");
 
         Disposable disposable = Observable.just(object)
@@ -162,7 +162,7 @@ public class Client {
      * Method for handling and executing the event.
      * @param event the event object.
      */
-    private void handleEvent(Event event) {
+    private void handleEvent(final Event event) {
         if (Objects.equals(event.getCurrentEvent(), Constants.CLEAR_CANVAS_EVENT)) {
             event.clearCanvasEvent(frame.getMenu());
         }

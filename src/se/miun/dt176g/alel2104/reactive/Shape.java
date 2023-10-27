@@ -35,7 +35,7 @@ public abstract class Shape implements Drawable, Serializable {
      * Method for setting the shape point coordinates.
      * @param coordinates the point coordinates.
      */
-    public void setCoordinates(Point coordinates) {
+    public void setCoordinates(final Point coordinates) {
         this.coordinates = coordinates;
     }
 
@@ -44,7 +44,7 @@ public abstract class Shape implements Drawable, Serializable {
      * point container.
      * @param coordinates the point coordinates.
      */
-    public void setFreehandCoordinates(Point coordinates) {
+    public void setFreehandCoordinates(final Point coordinates) {
         this.freehandCoordinates.add(coordinates);
     }
 
@@ -76,7 +76,7 @@ public abstract class Shape implements Drawable, Serializable {
      * Method for setting the current size of the shape, (height and width).
      * @param size the current shape size.
      */
-    public void setSize(Point size) {
+    public void setSize(final Point size) {
         this.size = size;
     }
 
@@ -84,7 +84,7 @@ public abstract class Shape implements Drawable, Serializable {
      * Method for setting the current thickness of the shape.
      * @param thickness the current thickness.
      */
-    public void setThickness(float thickness) {
+    public void setThickness(final float thickness) {
         this.thickness = thickness;
     }
 
@@ -100,7 +100,7 @@ public abstract class Shape implements Drawable, Serializable {
      * Method for setting the current color of the shape.
      * @param color the shape color.
      */
-    public void setColor(Color color) {
+    public void setColor(final Color color) {
         this.color = color;
     }
 
@@ -125,7 +125,7 @@ public abstract class Shape implements Drawable, Serializable {
      * Simple setter for the client hashCode.
      * @param clientHashCode the client hashCode.
      */
-    public void setClientHashCode(int clientHashCode) {
+    public void setClientHashCode(final int clientHashCode) {
         this.clientHashCode = clientHashCode;
     }
 }

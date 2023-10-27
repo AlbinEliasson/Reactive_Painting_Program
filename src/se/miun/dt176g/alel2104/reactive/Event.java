@@ -19,7 +19,7 @@ public class Event implements Serializable {
      * Constructor to initialize the current event.
      * @param event the current event.
      */
-    public Event(String event) {
+    public Event(final String event) {
         this.currentEvent = event;
     }
 
@@ -35,7 +35,7 @@ public class Event implements Serializable {
      * Method for executing the clear canvas event.
      * @param menu the menu.
      */
-    public void clearCanvasEvent(Menu menu) {
+    public void clearCanvasEvent(final Menu menu) {
         menu.clearCanvasEvent();
     }
 
@@ -52,7 +52,7 @@ public class Event implements Serializable {
      * Simple setter for the client hashCode.
      * @param clientHashCode the client hashCode.
      */
-    public void setClientHashCode(int clientHashCode) {
+    public void setClientHashCode(final int clientHashCode) {
         this.clientHashCode = clientHashCode;
     }
 }

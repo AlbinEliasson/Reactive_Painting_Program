@@ -2,8 +2,8 @@ package se.miun.dt176g.alel2104.reactive.gui;
 
 import se.miun.dt176g.alel2104.reactive.support.Constants;
 
-import java.awt.*;
-import javax.swing.*;
+import javax.swing.JFrame;
+import java.awt.BorderLayout;
 
 /**
  * <h1>MainFrame</h1> 

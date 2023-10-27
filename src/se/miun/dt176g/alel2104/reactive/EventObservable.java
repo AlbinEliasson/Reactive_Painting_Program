@@ -16,8 +16,8 @@ import java.awt.event.MouseEvent;
 
 /**
  * <h1>EventObservable</h1>
- * The event observable component which is utilized for creating observables from events.
- *
+ * The event observable utility component which is utilized for
+ * creating observables from events.
  * @author  --Albin Eliasson--
  * @version 1.0
  * @since   2023-10-07
@@ -37,23 +37,23 @@ public class EventObservable {
      * @param drawingPanel the drawingPanel component.
      * @return an observable of mouse events.
      */
-    public static Observable<MouseEvent> getMouseEventsObservable(DrawingPanel drawingPanel) {
+    public static Observable<MouseEvent> getMouseEventsObservable(final DrawingPanel drawingPanel) {
         return Observable.create(emitter -> {
             MouseAdapter mouseAdapter = new MouseAdapter() {
                 @Override
-                public void mousePressed(MouseEvent e) {
+                public void mousePressed(final MouseEvent e) {
                     emitter.onNext(e);
                     super.mousePressed(e);
                 }
 
                 @Override
-                public void mouseReleased(MouseEvent e) {
+                public void mouseReleased(final MouseEvent e) {
                     emitter.onNext(e);
                     super.mouseReleased(e);
                 }
 
                 @Override
-                public void mouseDragged(MouseEvent e) {
+                public void mouseDragged(final MouseEvent e) {
                     emitter.onNext(e);
                     super.mouseDragged(e);
                 }
@@ -73,7 +73,7 @@ public class EventObservable {
      * @param menuItem a radio menu button item.
      * @return an observable of item events.
      */
-    public static Observable<ItemEvent> getItemEventsObservable(JRadioButtonMenuItem menuItem) {
+    public static Observable<ItemEvent> getItemEventsObservable(final JRadioButtonMenuItem menuItem) {
         return Observable.create(emitter -> menuItem.addItemListener(emitter::onNext));
     }
 
@@ -82,7 +82,7 @@ public class EventObservable {
      * @param menuItem a menu item.
      * @return an observable of item events.
      */
-    public static Observable<ActionEvent> getItemActionEventsObservable(JMenuItem menuItem) {
+    public static Observable<ActionEvent> getItemActionEventsObservable(final JMenuItem menuItem) {
         return Observable.create(emitter -> menuItem.addActionListener(emitter::onNext));
     }
 
@@ -98,7 +98,7 @@ public class EventObservable {
      * Method for adding the current server to the current server subject.
      * @param server the current server to be added.
      */
-    public static void setCurrentServerSubject(Server server) {
+    public static void setCurrentServerSubject(final Server server) {
         currentServerSubject.onNext(server);
     }
 
@@ -114,7 +114,7 @@ public class EventObservable {
      * Method for adding the current client to the current client subject.
      * @param client the current client to be added.
      */
-    public static void setCurrentClientSubject(Client client) {
+    public static void setCurrentClientSubject(final Client client) {
         currentClientSubject.onNext(client);
     }
 
@@ -130,7 +130,7 @@ public class EventObservable {
      * Method for adding if the client is active.
      * @param active true if active.
      */
-    public static void setIsClientActiveSubject(boolean active) {
+    public static void setIsClientActiveSubject(final boolean active) {
         isClientActiveSubject.onNext(active);
     }
 
@@ -146,7 +146,7 @@ public class EventObservable {
      * Method for adding if the server is active.
      * @param active true if active.
      */
-    public static void setIsServerActiveSubject(boolean active) {
+    public static void setIsServerActiveSubject(final boolean active) {
         isServerActiveSubject.onNext(active);
     }
 
@@ -162,7 +162,7 @@ public class EventObservable {
      * Method for adding the current event to the current event subject.
      * @param currentEvent the current event to be added.
      */
-    public static void setCurrentEventSubject(Event currentEvent) {
+    public static void setCurrentEventSubject(final Event currentEvent) {
         currentEventSubject.onNext(currentEvent);
     }
 
@@ -178,7 +178,7 @@ public class EventObservable {
      * Method for adding the current shape to the current shape subject.
      * @param shape the current shape to be added.
      */
-    public static void setCurrentShapeSubject(Shape shape) {
+    public static void setCurrentShapeSubject(final Shape shape) {
         currentShapeSubject.onNext(shape);
     }
 
@@ -194,7 +194,7 @@ public class EventObservable {
      * Method for adding the current thickness to the current thickness subject.
      * @param thickness the current thickness.
      */
-    public static void setCurrentThicknessSubject(long thickness) {
+    public static void setCurrentThicknessSubject(final long thickness) {
         currentThicknessSubject.onNext(thickness);
     }
 
@@ -210,7 +210,7 @@ public class EventObservable {
      * Method for adding the current color to the current color subject.
      * @param color the current color.
      */
-    public static void setCurrentColorSubject(Color color) {
+    public static void setCurrentColorSubject(final Color color) {
         currentColorSubject.onNext(color);
     }
 }

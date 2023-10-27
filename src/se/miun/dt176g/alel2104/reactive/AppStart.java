@@ -13,13 +13,11 @@ import javax.swing.SwingUtilities;
 * @since   2023-10-07
 */
 public class AppStart {
-
 	/**
 	 * Starts the program by creating and showing the mainframe component.
 	 * @param args args.
 	 */
-	public static void main(String[] args) {
-		
+	public static void main(final String[] args) {
 		// Make sure GUI is created on the event dispatching thread
 		SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
 	}

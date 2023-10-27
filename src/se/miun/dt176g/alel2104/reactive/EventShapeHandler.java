@@ -35,7 +35,7 @@ public class EventShapeHandler {
      * Constructor to initialize the drawing panel, mouse event, and other listeners.
      * @param drawingPanel the drawing panel component.
      */
-    public EventShapeHandler(DrawingPanel drawingPanel) {
+    public EventShapeHandler(final DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
         mouseEventObservable = EventObservable.getMouseEventsObservable(drawingPanel);
 
@@ -76,7 +76,7 @@ public class EventShapeHandler {
      * @param startPoint the start point, which is the first point where the user clicked.
      * @return an observable containing the updated shape.
      */
-    private Observable<Shape> getShape(Point startPoint) {
+    private Observable<Shape> getShape(final Point startPoint) {
         return mouseEventObservable
                 .takeUntil(mouseEvent -> mouseEvent.getID() == MouseEvent.MOUSE_RELEASED)
                 .map(mouseEvent -> new Point(mouseEvent.getX(), mouseEvent.getY()))
@@ -89,7 +89,7 @@ public class EventShapeHandler {
      * @param currentPoint the current position point of the mouse.
      * @return an updated shape with new coordinates and size.
      */
-    private Shape getUpdatedShape(Point startPoint, Point currentPoint) {
+    private Shape getUpdatedShape(final Point startPoint, final Point currentPoint) {
         if (currentShape instanceof Line) {
             currentShape.setCoordinates(startPoint);
             currentShape.setSize(currentPoint);
@@ -121,7 +121,8 @@ public class EventShapeHandler {
      * @param secondPointY the current points y-coordinate.
      * @return the new initial point.
      */
-    private Point getInitialPoint(int firstPointX, int firstPointY, int secondPointX, int secondPointY) {
+    private Point getInitialPoint(final int firstPointX, final int firstPointY,
+                                  final int secondPointX, final int secondPointY) {
         return new Point(Math.min(firstPointX, secondPointX), Math.min(firstPointY, secondPointY));
     }
 
@@ -131,7 +132,7 @@ public class EventShapeHandler {
      * @param secondPoint the current position point of the mouse.
      * @return the new shape size point.
      */
-    private Point getShapeSize(Point firstPoint, Point secondPoint) {
+    private Point getShapeSize(final Point firstPoint, final Point secondPoint) {
         return new Point(Math.abs(secondPoint.getX() - firstPoint.getX()), Math.abs(secondPoint.getY() - firstPoint.getY()));
     }
 
@@ -218,7 +219,7 @@ public class EventShapeHandler {
      * Method for setting the current shape.
      * @param shape the current shape.
      */
-    private void setCurrentShape(Shape shape) {
+    private void setCurrentShape(final Shape shape) {
         this.currentShape = shape;
     }
 
@@ -226,7 +227,7 @@ public class EventShapeHandler {
      * Method for setting the current thickness.
      * @param thickness the current thickness.
      */
-    private void setCurrentThickness(float thickness) {
+    private void setCurrentThickness(final float thickness) {
         this.currentThickness = thickness;
     }
 
@@ -234,7 +235,7 @@ public class EventShapeHandler {
      * Method for setting the current color.
      * @param currentColor the current color.
      */
-    private void setCurrentColor(Color currentColor) {
+    private void setCurrentColor(final Color currentColor) {
         this.currentColor = currentColor;
     }
 
@@ -242,7 +243,7 @@ public class EventShapeHandler {
      * Method for setting the current server.
      * @param server the current server.
      */
-    private void setCurrentServer(Server server) {
+    private void setCurrentServer(final Server server) {
         this.currentServer = server;
     }
 
@@ -250,7 +251,7 @@ public class EventShapeHandler {
      * Method for setting the current client.
      * @param client the current client.
      */
-    private void setCurrentClient(Client client) {
+    private void setCurrentClient(final Client client) {
         this.currentClient = client;
     }
 
@@ -258,7 +259,7 @@ public class EventShapeHandler {
      * Method for setting if the current client is active.
      * @param active true if active.
      */
-    private void setIsClientActive(boolean active) {
+    private void setIsClientActive(final boolean active) {
         this.isClientActive = active;
     }
 
@@ -266,7 +267,7 @@ public class EventShapeHandler {
      * Method for setting if the current server is active.
      * @param active true if active.
      */
-    private void setIsServerActive(boolean active) {
+    private void setIsServerActive(final boolean active) {
         this.isServerActive = active;
     }
 }

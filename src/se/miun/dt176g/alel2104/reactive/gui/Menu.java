@@ -51,7 +51,7 @@ public class Menu extends JMenuBar {
 	 * Constructor to initialize the menu swing components.
 	 * @param frame the window frame.
 	 */
-	public Menu(MainFrame frame) {
+	public Menu(final MainFrame frame) {
 		this.frame = frame;
 		init();
 	}
@@ -372,7 +372,7 @@ public class Menu extends JMenuBar {
 	 * @param e IOException.
 	 * @param message the displayed dialog message.
 	 */
-	public void connectServerEventError(IOException e, String message) {
+	public void connectServerEventError(final IOException e, final String message) {
 		if (e != null) {
 			JOptionPane.showMessageDialog(frame, message + e.getMessage());
 		} else {
@@ -384,7 +384,7 @@ public class Menu extends JMenuBar {
 	 * Method for setting the current shape JLabel text.
 	 * @param text the current shape selected.
 	 */
-	private void setCurrentShapeText(String text) {
+	private void setCurrentShapeText(final String text) {
 		currentShapeLabel.setText(text);
 	}
 }

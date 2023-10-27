@@ -3,8 +3,8 @@ package se.miun.dt176g.alel2104.reactive.gui;
 import se.miun.dt176g.alel2104.reactive.Drawing;
 import se.miun.dt176g.alel2104.reactive.EventShapeHandler;
 
-import java.awt.*;
-import javax.swing.*;
+import javax.swing.JPanel;
+import java.awt.Graphics;
 
 /**
  * <h1>DrawingPanel</h1>
@@ -32,7 +32,7 @@ public class DrawingPanel extends JPanel {
 	 * Simple setter method for the drawing component.
 	 * @param drawing the drawing component.
 	 */
-	public void setDrawing(Drawing drawing) {
+	public void setDrawing(final Drawing drawing) {
 		this.drawing = drawing;
 		repaint();
 	}
@@ -73,7 +73,7 @@ public class DrawingPanel extends JPanel {
 	 * @param g the <code>Graphics</code> object to protect
 	 */
 	@Override
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		drawing.draw(g);
 	}

@@ -5,20 +5,20 @@ import java.io.Serializable;
 /**
  * <h1>Point</h1> 
  * The point component which represents an x and Y position from the GUI.
- *
  * @author  --Albin Eliasson--
  * @version 1.0
  * @since   2023-10-07
  */
 public class Point implements Serializable {
-	private int x, y;
+	private int x;
+	private int y;
 
 	/**
 	 * Constructor to initialize the x and y coordinates.
 	 * @param x the x-coordinate.
 	 * @param y the y-coordinate.
 	 */
-	public Point(int x, int y) {
+	public Point(final int x, final int y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -43,7 +43,7 @@ public class Point implements Serializable {
 	 * Method for setting the current x-coordinate.
 	 * @param x the x-position.
 	 */
-	public void setX(int x) {
+	public void setX(final int x) {
 		this.x = x;
 	}
 
@@ -51,7 +51,7 @@ public class Point implements Serializable {
 	 * Method for setting the current y-coordinate.
 	 * @param y the y-coordinate.
 	 */
-	public void setY(int y) {
+	public void setY(final int y) {
 		this.y = y;
 	}
 
@@ -61,7 +61,7 @@ public class Point implements Serializable {
 	 * @return true if equal.
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		Point p = (Point) o;
 		return (x == p.getX() && y == p.getY());
 	}
@@ -72,7 +72,6 @@ public class Point implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "["+x+","+y+"]";
+		return "[" + x + "," + y + "]";
 	}
-
 }

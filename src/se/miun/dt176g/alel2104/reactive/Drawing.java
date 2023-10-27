@@ -6,7 +6,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * <h1>Drawing</h1> 
  * The drawing component which holds and paints all the shape components.
- *
  * @author  --Albin Eliasson--
  * @version 1.0
  * @since   2023-10-07
@@ -25,7 +24,7 @@ public class Drawing implements Drawable {
 	 * Method for adding new shapes to the shape container.
 	 * @param s the shape to be added.
 	 */
-	public void addShape(Shape s) {
+	public void addShape(final Shape s) {
 		shapes.add(s);
 		System.out.println("Amount of shapes: " + shapes.size());
 	}
@@ -42,7 +41,7 @@ public class Drawing implements Drawable {
 	 * @param g graphics.
 	 */
 	@Override
-	public void draw(Graphics g) {
+	public void draw(final Graphics g) {
 		shapes.forEach(shape -> shape.draw(g));
 	}
 }

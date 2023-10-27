@@ -10,7 +10,6 @@ package se.miun.dt176g.alel2104.reactive;
  */
 @FunctionalInterface
 interface Drawable {
-
 	/**
 	 * Method for painting components.
 	 * @param g graphics.

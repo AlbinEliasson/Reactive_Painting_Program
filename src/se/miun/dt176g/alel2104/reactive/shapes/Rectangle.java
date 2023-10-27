@@ -22,7 +22,7 @@ public class Rectangle extends Shape implements Serializable {
 	 * @param g graphics.
 	 */
 	@Override
-	public void draw(Graphics g) {
+	public void draw(final Graphics g) {
 		Graphics2D g2 = (Graphics2D) g; // Type-cast the parameter to Graphics2D.
 		// Draw using g2.
 		g2.setStroke(new BasicStroke(getThickness()));
