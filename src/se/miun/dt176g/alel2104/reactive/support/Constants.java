@@ -23,5 +23,4 @@ public interface Constants {
     String HOST_SERVER_ERROR_MESSAGE = "Could not host server: ";
     String CONNECTION_LOST_MESSAGE = "Connection lost to server!";
     String CLEAR_CANVAS_EVENT = "CLEAR_CANVAS";
-
 }

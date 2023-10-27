@@ -40,7 +40,7 @@ public class Server {
     private final Subject<Object> objectStream;
     private final MainFrame frame;
     private final Map<Integer, Disposable> disposableMap;
-    private final Map<Integer, Disposable> shapeDisposableMap;
+    private final Map<Integer, Disposable> objectDisposableMap;
 
     /**
      * Constructor to initialize the server socket, main frame and connection/stream related variables.
@@ -54,7 +54,7 @@ public class Server {
         clientConnections = PublishSubject.create();
         objectStream = ReplaySubject.create();
         disposableMap = new HashMap<>();
-        shapeDisposableMap = new HashMap<>();
+        objectDisposableMap = new HashMap<>();
 
         serverSocket = new ServerSocket(serverPort);
     }
@@ -153,7 +153,7 @@ public class Server {
 
         // Subject stream which sends the received objects to clients
         objectStream.subscribeOn(Schedulers.io())
-                .doOnSubscribe(disposable -> shapeDisposableMap.put(clientSocket.hashCode(), disposable))
+                .doOnSubscribe(disposable -> objectDisposableMap.put(clientSocket.hashCode(), disposable))
                 .withLatestFrom(getObjectOutputStream(clientSocket), (object, outputStream) -> {
                     if (object instanceof Shape shape) {
                         // Check if client hashCode is 0 (the server user sent the shape) or if the shape is
@@ -191,9 +191,11 @@ public class Server {
         acceptConnection = false;
 
         try {
-            serverSocket.close();
+            if (!serverSocket.isClosed()) {
+                serverSocket.close();
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
 
         clientSockets.forEach(this::disposeClientResources);
@@ -215,7 +217,7 @@ public class Server {
                 clientSocket.close();
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
     }
 
@@ -250,8 +252,8 @@ public class Server {
             Socket socket = ((ConnectionError) throwableError).getSocket();
             disposableMap.get(socket.hashCode()).dispose();
             disposableMap.remove(socket.hashCode());
-            shapeDisposableMap.get(socket.hashCode()).dispose();
-            shapeDisposableMap.remove(socket.hashCode());
+            objectDisposableMap.get(socket.hashCode()).dispose();
+            objectDisposableMap.remove(socket.hashCode());
         }
     }
 
@@ -285,7 +287,7 @@ public class Server {
         private final Socket socket;
 
         /**
-         * Constructor to initialize the client that had a connection error.
+         * Constructor to initialize the client socket that had a connection error.
          * @param socket the client socket.
          */
         public ConnectionError(Socket socket) {

@@ -153,45 +153,6 @@ public class Menu extends JMenuBar {
 		this.add(optionsMenu);
 	}
 
-	private void disconnectFromServerEvent() {
-		if (clientDisposable != null) {
-			clientDisposable.dispose();
-		}
-		client = null;
-		disconnectFromServer.setEnabled(false);
-		hostServer.setEnabled(true);
-		connectToSever.setEnabled(true);
-		connectServerEventError(null, Constants.CONNECTION_LOST_MESSAGE);
-	}
-
-	private void disconnectServerEvent() {
-		if (serverDisposable != null) {
-			serverDisposable.dispose();
-		}
-		server = null;
-		disconnectServer.setEnabled(false);
-		hostServer.setEnabled(true);
-		connectToSever.setEnabled(true);
-	}
-
-	private void isClientActiveListener() {
-		EventObservable.getIsClientActiveSubject()
-				.subscribe(active -> {
-					if (!active) {
-						disconnectFromServerEvent();
-					}
-				});
-	}
-
-	private void isServerActiveListener() {
-		EventObservable.getIsServerActiveSubject()
-				.subscribe(active -> {
-					if (!active) {
-						disconnectServerEvent();
-					}
-				});
-	}
-
 	/**
 	 * Method for initializing the thickness options menu.
 	 */
@@ -203,12 +164,13 @@ public class Menu extends JMenuBar {
 		JRadioButtonMenuItem medium = new JRadioButtonMenuItem("Medium");
 		JRadioButtonMenuItem thick = new JRadioButtonMenuItem("Thick");
 
-		// Set thin option as initial selected
-		thin.setSelected(true);
-		EventObservable.setCurrentThicknessSubject(Constants.MENU_THIN_THICKNESS);
-
 		EventObservable.getItemEventsObservable(thin)
 				.filter(stateChange -> stateChange.getStateChange() == ItemEvent.SELECTED)
+				.doOnSubscribe(disposable -> {
+					// Set thin option as initial selected
+					thin.setSelected(true);
+					EventObservable.setCurrentThicknessSubject(Constants.MENU_THIN_THICKNESS);
+				})
 				.subscribe(event -> EventObservable.setCurrentThicknessSubject(Constants.MENU_THIN_THICKNESS));
 
 		EventObservable.getItemEventsObservable(medium)
@@ -242,14 +204,15 @@ public class Menu extends JMenuBar {
 		JRadioButtonMenuItem drawLine = new JRadioButtonMenuItem("Line");
 		JRadioButtonMenuItem drawFreehand = new JRadioButtonMenuItem("Freehand");
 
-		// Set Rectangle option as initial selected
-		drawRectangle.setSelected(true);
-		setCurrentShapeText("Drawing: Rectangle");
-		EventObservable.setCurrentShapeSubject(new Rectangle());
-
 		EventObservable.getItemEventsObservable(drawRectangle)
 				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
 				.map(itemEvent -> new Rectangle())
+				.doOnSubscribe(disposable -> {
+					// Set Rectangle option as initial selected
+					drawRectangle.setSelected(true);
+					setCurrentShapeText("Drawing: Rectangle");
+					EventObservable.setCurrentShapeSubject(new Rectangle());
+				})
 				.subscribe(rectangle -> {
 					EventObservable.setCurrentShapeSubject(rectangle);
 					setCurrentShapeText("Drawing: Rectangle");
@@ -303,12 +266,13 @@ public class Menu extends JMenuBar {
 		JRadioButtonMenuItem colorRed = new JRadioButtonMenuItem("Red");
 		JRadioButtonMenuItem colorBlue = new JRadioButtonMenuItem("Blue");
 
-		// Set black color as initial color
-		colorBlack.setSelected(true);
-		EventObservable.setCurrentColorSubject(Color.BLACK);
-
 		EventObservable.getItemEventsObservable(colorBlack)
 				.filter(itemEvent -> itemEvent.getStateChange() == ItemEvent.SELECTED)
+				.doOnSubscribe(disposable -> {
+					// Set black color as initial color
+					colorBlack.setSelected(true);
+					EventObservable.setCurrentColorSubject(Color.BLACK);
+				})
 				.subscribe(event -> EventObservable.setCurrentColorSubject(Color.BLACK));
 
 
@@ -332,6 +296,63 @@ public class Menu extends JMenuBar {
 		this.add(colorMenu);
 	}
 
+	/**
+	 * Method for executing the client disconnect event by disposing resources, activating/disabling
+	 * menu options and displaying a disconnect message.
+	 */
+	private void disconnectFromServerEvent() {
+		if (clientDisposable != null) {
+			clientDisposable.dispose();
+		}
+		client = null;
+		disconnectFromServer.setEnabled(false);
+		hostServer.setEnabled(true);
+		connectToSever.setEnabled(true);
+		connectServerEventError(null, Constants.CONNECTION_LOST_MESSAGE);
+	}
+
+	/**
+	 * Method for executing the server disconnect event by disposing resources and
+	 * activating/disabling menu options.
+	 */
+	private void disconnectServerEvent() {
+		if (serverDisposable != null) {
+			serverDisposable.dispose();
+		}
+		server = null;
+		disconnectServer.setEnabled(false);
+		hostServer.setEnabled(true);
+		connectToSever.setEnabled(true);
+	}
+
+	/**
+	 * Method for listening for a client inactive call to execute the client disconnect event.
+	 */
+	private void isClientActiveListener() {
+		EventObservable.getIsClientActiveSubject()
+				.subscribe(active -> {
+					if (!active) {
+						disconnectFromServerEvent();
+					}
+				});
+	}
+
+	/**
+	 * Method for listening for a server inactive call to execute the server disconnect event.
+	 */
+	private void isServerActiveListener() {
+		EventObservable.getIsServerActiveSubject()
+				.subscribe(active -> {
+					if (!active) {
+						disconnectServerEvent();
+					}
+				});
+	}
+
+	/**
+	 * Method for creating a confirmation dialog for the clear canvas event.
+	 * @return true if "yes" is chosen.
+	 */
 	private boolean shouldClearCanvas() {
 		int dialogResult = JOptionPane.showConfirmDialog(
 				frame, Constants.CLEAR_CANVAS_MESSAGE, Constants.HEADER, JOptionPane.YES_NO_OPTION);
@@ -340,12 +361,17 @@ public class Menu extends JMenuBar {
 	}
 
 	/**
-	 * Method for creating and executing a clear canvas event with an option dialog.
+	 * Method for executing a clear canvas event.
 	 */
 	public void clearCanvasEvent() {
 		frame.getDrawingPanel().clearCanvas();
 	}
 
+	/**
+	 * Method for creating a message dialog for connection/disconnection errors.
+	 * @param e IOException.
+	 * @param message the displayed dialog message.
+	 */
 	public void connectServerEventError(IOException e, String message) {
 		if (e != null) {
 			JOptionPane.showMessageDialog(frame, message + e.getMessage());

@@ -32,8 +32,7 @@ public class EventShapeHandler {
     private boolean isServerActive = false;
 
     /**
-     * Constructor which initialized the drawing panel,
-     * as well as the mouse event, shape event and color event listeners.
+     * Constructor to initialize the drawing panel, mouse event, and other listeners.
      * @param drawingPanel the drawing panel component.
      */
     public EventShapeHandler(DrawingPanel drawingPanel) {
@@ -174,28 +173,42 @@ public class EventShapeHandler {
     }
 
     /**
-     * Method for setting the current color from the color subject.
+     * Method for setting the current color from the current color subject.
      */
     private void setColorListener() {
         EventObservable.getCurrentColor()
                 .subscribe(this::setCurrentColor);
     }
 
+    /**
+     * Method for setting the current server from the current server subject.
+     */
     private void setServerListener() {
         EventObservable.getCurrentServer()
                 .subscribe(this::setCurrentServer);
     }
 
+    /**
+     * Method for setting the current client from the current client subject.
+     */
     private void setClientListener() {
         EventObservable.getCurrentClient()
                 .subscribe(this::setCurrentClient);
     }
 
+    /**
+     * Method for setting if the current client is active from the is client
+     * active subject.
+     */
     private void setIsClientActiveListener() {
         EventObservable.getIsClientActiveSubject()
                 .subscribe(this::setIsClientActive);
     }
 
+    /**
+     * Method for setting if the current server is active from the is server
+     * active subject.
+     */
     private void setIsServerActiveListener() {
         EventObservable.getIsServerActiveSubject()
                 .subscribe(this::setIsServerActive);
@@ -225,18 +238,34 @@ public class EventShapeHandler {
         this.currentColor = currentColor;
     }
 
+    /**
+     * Method for setting the current server.
+     * @param server the current server.
+     */
     private void setCurrentServer(Server server) {
         this.currentServer = server;
     }
 
+    /**
+     * Method for setting the current client.
+     * @param client the current client.
+     */
     private void setCurrentClient(Client client) {
         this.currentClient = client;
     }
 
+    /**
+     * Method for setting if the current client is active.
+     * @param active true if active.
+     */
     private void setIsClientActive(boolean active) {
         this.isClientActive = active;
     }
 
+    /**
+     * Method for setting if the current server is active.
+     * @param active true if active.
+     */
     private void setIsServerActive(boolean active) {
         this.isServerActive = active;
     }

@@ -2,8 +2,6 @@ package se.miun.dt176g.alel2104.reactive.gui;
 
 import se.miun.dt176g.alel2104.reactive.Drawing;
 import se.miun.dt176g.alel2104.reactive.EventShapeHandler;
-import se.miun.dt176g.alel2104.reactive.connect.Client;
-import se.miun.dt176g.alel2104.reactive.connect.Server;
 
 import java.awt.*;
 import javax.swing.*;
@@ -17,12 +15,9 @@ import javax.swing.*;
  * @since 	2023-10-07
  */
 
-@SuppressWarnings("serial")
 public class DrawingPanel extends JPanel {
 	private Drawing drawing;
 	private final EventShapeHandler eventShapeHandler;
-	private Client client;
-	private Server server;
 
 	/**
 	 * Constructor for initializing the eventShapeHandler which handles mouse/shape events.
@@ -31,22 +26,6 @@ public class DrawingPanel extends JPanel {
 		drawing = new Drawing();
 		eventShapeHandler = new EventShapeHandler(this);
 		eventShapeHandler.handleMouseEvents();
-	}
-
-	public void setClient(Client client) {
-		this.client = client;
-	}
-
-	public Client getClient() {
-		return client;
-	}
-
-	public void setServer(Server server) {
-		this.server = server;
-	}
-
-	public Server getServer() {
-		return server;
 	}
 
 	/**

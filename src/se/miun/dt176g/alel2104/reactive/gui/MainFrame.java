@@ -15,7 +15,6 @@ import javax.swing.*;
  */
 
 public class MainFrame extends JFrame {
-	private String header;
 	private final DrawingPanel drawingPanel;
 	private final Menu menu;
 
@@ -32,8 +31,7 @@ public class MainFrame extends JFrame {
 		// Makes sure the window starts at the center of the screen
 		this.setLocationRelativeTo(null);
 
-		this.header = Constants.HEADER;
-		this.setTitle(header);
+		this.setTitle(Constants.HEADER);
 
 		// Changes layout from default to BorderLayout
 		this.setLayout(new BorderLayout());
@@ -48,13 +46,17 @@ public class MainFrame extends JFrame {
 	}
 
 	/**
-	 * Simple getter method for the drawing JPanel component.
+	 * Simple getter for the drawing JPanel component.
 	 * @return the drawing JPanel component.
 	 */
 	public DrawingPanel getDrawingPanel() {
 		return drawingPanel;
 	}
 
+	/**
+	 * Simple getter for the menu JMenuBar component.
+	 * @return the menu JMenuBar component.
+	 */
 	public Menu getMenu() {
 		return menu;
 	}

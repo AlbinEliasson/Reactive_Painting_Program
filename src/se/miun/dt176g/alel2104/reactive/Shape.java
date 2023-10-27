@@ -112,10 +112,19 @@ public abstract class Shape implements Drawable, Serializable {
         return color;
     }
 
+    /**
+     * Simple getter for the client hashCode, used by server to prevent sending the shape back to
+     * the sending client.
+     * @return the client hashCode.
+     */
     public int getClientHashCode() {
         return clientHashCode;
     }
 
+    /**
+     * Simple setter for the client hashCode.
+     * @param clientHashCode the client hashCode.
+     */
     public void setClientHashCode(int clientHashCode) {
         this.clientHashCode = clientHashCode;
     }

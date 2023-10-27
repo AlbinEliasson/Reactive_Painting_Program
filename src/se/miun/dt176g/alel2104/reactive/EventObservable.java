@@ -77,46 +77,91 @@ public class EventObservable {
         return Observable.create(emitter -> menuItem.addItemListener(emitter::onNext));
     }
 
+    /**
+     * Method for setting an action listener and returning an observable of the events.
+     * @param menuItem a menu item.
+     * @return an observable of item events.
+     */
     public static Observable<ActionEvent> getItemActionEventsObservable(JMenuItem menuItem) {
         return Observable.create(emitter -> menuItem.addActionListener(emitter::onNext));
     }
 
+    /**
+     * Simple getter of the current server subject containing the current server.
+     * @return an observable of the current server.
+     */
     public static Observable<Server> getCurrentServer() {
         return currentServerSubject;
     }
 
+    /**
+     * Method for adding the current server to the current server subject.
+     * @param server the current server to be added.
+     */
     public static void setCurrentServerSubject(Server server) {
         currentServerSubject.onNext(server);
     }
 
+    /**
+     * Simple getter for the current client subject containing the current client.
+     * @return an observable of the current client.
+     */
     public static Observable<Client> getCurrentClient() {
         return currentClientSubject;
     }
 
+    /**
+     * Method for adding the current client to the current client subject.
+     * @param client the current client to be added.
+     */
     public static void setCurrentClientSubject(Client client) {
         currentClientSubject.onNext(client);
     }
 
+    /**
+     * Simple getter for if the client is active, as connection errors can occur.
+     * @return an observable of the boolean value if the client is active.
+     */
     public static Observable<Boolean> getIsClientActiveSubject() {
         return isClientActiveSubject;
     }
 
+    /**
+     * Method for adding if the client is active.
+     * @param active true if active.
+     */
     public static void setIsClientActiveSubject(boolean active) {
         isClientActiveSubject.onNext(active);
     }
 
+    /**
+     * Simple getter for if the server is active, as connection errors can occur.
+     * @return an observable of the boolean value if the server is active.
+     */
     public static Observable<Boolean> getIsServerActiveSubject() {
         return isServerActiveSubject;
     }
 
+    /**
+     * Method for adding if the server is active.
+     * @param active true if active.
+     */
     public static void setIsServerActiveSubject(boolean active) {
         isServerActiveSubject.onNext(active);
     }
 
+    /**
+     * Simple getter for the current event subject containing the current event.
+     * @return an observable of the current event.
+     */
     public static Observable<Event> getEventSubject() {
         return currentEventSubject;
     }
 
+    /**
+     * Method for adding the current event to the current event subject.
+     * @param currentEvent the current event to be added.
+     */
     public static void setCurrentEventSubject(Event currentEvent) {
         currentEventSubject.onNext(currentEvent);
     }

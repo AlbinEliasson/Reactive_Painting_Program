@@ -113,9 +113,11 @@ public class Client {
         System.out.println("Disconnecting client...!");
         disposables.clear();
         try {
-            socket.close();
+            if (!socket.isClosed()) {
+                socket.close();
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
         EventObservable.setIsClientActiveSubject(false);
     }
