@@ -1,10 +1,10 @@
-package se.miun.dt176g.alel2104.reactive;
+package reactive_paint;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
-import se.miun.dt176g.alel2104.reactive.connect.Client;
-import se.miun.dt176g.alel2104.reactive.connect.Server;
-import se.miun.dt176g.alel2104.reactive.gui.DrawingPanel;
+import reactive_paint.connect.Client;
+import reactive_paint.connect.Server;
+import reactive_paint.gui.DrawingPanel;
 
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;

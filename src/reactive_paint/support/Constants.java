@@ -1,4 +1,4 @@
-package se.miun.dt176g.alel2104.reactive.support;
+package reactive_paint.support;
 
 /**
  * <h1>Constants</h1>

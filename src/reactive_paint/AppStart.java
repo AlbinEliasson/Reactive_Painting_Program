@@ -1,6 +1,6 @@
-package se.miun.dt176g.alel2104.reactive;
+package reactive_paint;
 
-import se.miun.dt176g.alel2104.reactive.gui.MainFrame;
+import reactive_paint.gui.MainFrame;
 
 import javax.swing.SwingUtilities;
 

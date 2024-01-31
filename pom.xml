@@ -32,7 +32,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>se.miun.dt176g.alel2104.reactive.AppStart</mainClass>
+							<mainClass>reactive_paint.AppStart</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

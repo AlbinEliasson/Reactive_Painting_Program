@@ -1,7 +1,7 @@
-package se.miun.dt176g.alel2104.reactive.gui;
+package reactive_paint.gui;
 
-import se.miun.dt176g.alel2104.reactive.Drawing;
-import se.miun.dt176g.alel2104.reactive.EventShapeHandler;
+import reactive_paint.Drawing;
+import reactive_paint.EventShapeHandler;
 
 import javax.swing.JPanel;
 import java.awt.Graphics;

@@ -1,4 +1,4 @@
-package se.miun.dt176g.alel2104.reactive;
+package reactive_paint;
 
 /**
  * <h1>Drawable</h1>

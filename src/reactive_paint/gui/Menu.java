@@ -1,17 +1,17 @@
-package se.miun.dt176g.alel2104.reactive.gui;
+package reactive_paint.gui;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import se.miun.dt176g.alel2104.reactive.Event;
-import se.miun.dt176g.alel2104.reactive.EventObservable;
-import se.miun.dt176g.alel2104.reactive.connect.Client;
-import se.miun.dt176g.alel2104.reactive.connect.Server;
-import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
-import se.miun.dt176g.alel2104.reactive.shapes.Line;
-import se.miun.dt176g.alel2104.reactive.shapes.Oval;
-import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
-import se.miun.dt176g.alel2104.reactive.support.Constants;
+import reactive_paint.shapes.Freehand;
+import reactive_paint.shapes.Line;
+import reactive_paint.shapes.Oval;
+import reactive_paint.shapes.Rectangle;
+import reactive_paint.support.Constants;
+import reactive_paint.Event;
+import reactive_paint.EventObservable;
+import reactive_paint.connect.Client;
+import reactive_paint.connect.Server;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;

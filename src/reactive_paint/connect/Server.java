@@ -1,4 +1,4 @@
-package se.miun.dt176g.alel2104.reactive.connect;
+package reactive_paint.connect;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
@@ -7,11 +7,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import io.reactivex.rxjava3.subjects.Subject;
-import se.miun.dt176g.alel2104.reactive.Event;
-import se.miun.dt176g.alel2104.reactive.EventObservable;
-import se.miun.dt176g.alel2104.reactive.Shape;
-import se.miun.dt176g.alel2104.reactive.gui.MainFrame;
-import se.miun.dt176g.alel2104.reactive.support.Constants;
+import reactive_paint.Shape;
+import reactive_paint.gui.MainFrame;
+import reactive_paint.support.Constants;
+import reactive_paint.Event;
+import reactive_paint.EventObservable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

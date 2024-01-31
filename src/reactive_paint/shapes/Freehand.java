@@ -1,6 +1,6 @@
-package se.miun.dt176g.alel2104.reactive.shapes;
+package reactive_paint.shapes;
 
-import se.miun.dt176g.alel2104.reactive.Shape;
+import reactive_paint.Shape;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics;

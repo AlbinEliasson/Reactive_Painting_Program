@@ -1,6 +1,6 @@
-package se.miun.dt176g.alel2104.reactive;
+package reactive_paint;
 
-import se.miun.dt176g.alel2104.reactive.gui.Menu;
+import reactive_paint.gui.Menu;
 
 import java.io.Serializable;
 

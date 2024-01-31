@@ -1,13 +1,13 @@
-package se.miun.dt176g.alel2104.reactive;
+package reactive_paint;
 
 import io.reactivex.rxjava3.core.Observable;
-import se.miun.dt176g.alel2104.reactive.connect.Client;
-import se.miun.dt176g.alel2104.reactive.connect.Server;
-import se.miun.dt176g.alel2104.reactive.gui.DrawingPanel;
-import se.miun.dt176g.alel2104.reactive.shapes.Freehand;
-import se.miun.dt176g.alel2104.reactive.shapes.Line;
-import se.miun.dt176g.alel2104.reactive.shapes.Oval;
-import se.miun.dt176g.alel2104.reactive.shapes.Rectangle;
+import reactive_paint.connect.Client;
+import reactive_paint.connect.Server;
+import reactive_paint.gui.DrawingPanel;
+import reactive_paint.shapes.Freehand;
+import reactive_paint.shapes.Line;
+import reactive_paint.shapes.Oval;
+import reactive_paint.shapes.Rectangle;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;

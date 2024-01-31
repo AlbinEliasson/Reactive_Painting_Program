@@ -1,4 +1,4 @@
-package se.miun.dt176g.alel2104.reactive;
+package reactive_paint;
 
 import java.awt.Color;
 import java.io.Serializable;

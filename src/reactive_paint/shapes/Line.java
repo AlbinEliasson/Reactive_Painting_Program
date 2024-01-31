@@ -1,6 +1,6 @@
-package se.miun.dt176g.alel2104.reactive.shapes;
+package reactive_paint.shapes;
 
-import se.miun.dt176g.alel2104.reactive.Shape;
+import reactive_paint.Shape;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics;
@@ -8,17 +8,17 @@ import java.awt.Graphics2D;
 import java.io.Serializable;
 
 /**
- * <h1>Oval</h1>
- * Component representing the oval shape.
+ * <h1>Line</h1>
+ * Component representing the line shape.
  *
  * @author 	--Albin Eliasson--
  * @version 1.0
  * @since 	2023-10-07
  */
-public class Oval extends Shape implements Serializable {
+public class Line extends Shape implements Serializable {
 
     /**
-     * Overridden draw method for painting the oval shape.
+     * Overridden draw method for painting the line shape.
      * @param g graphics.
      */
     @Override
@@ -29,7 +29,7 @@ public class Oval extends Shape implements Serializable {
         g2.setColor(getColor());
 
         if (getCoordinates() != null) {
-            g2.drawOval(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
+            g2.drawLine(getCoordinates().getX(), getCoordinates().getY(), getWidth(), getHeight());
         }
     }
 }

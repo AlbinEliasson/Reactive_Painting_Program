@@ -1,6 +1,6 @@
-package se.miun.dt176g.alel2104.reactive.gui;
+package reactive_paint.gui;
 
-import se.miun.dt176g.alel2104.reactive.support.Constants;
+import reactive_paint.support.Constants;
 
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
